@@ -1,4 +1,4 @@
-module example.com/keptn-service-template-go
+module github.com/vadasambar/datadog-servicedatadog-service
 
 go 1.16
 

@@ -20,7 +20,7 @@
   
       "configurationChange": {
         "values": {
-          "image": "docker.io/keptnexamples/carts:0.11.2"
+          "image": "ghcr.io/keptnexamples/carts:0.11.2"
         }
       },
       "deployment": {
