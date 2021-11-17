@@ -1,4 +1,4 @@
-module github.com/vadasambar/datadog-servicedatadog-service
+module github.com/vadasambar/datadog-service
 
 go 1.16
 
