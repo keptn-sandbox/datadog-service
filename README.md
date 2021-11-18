@@ -110,9 +110,9 @@ If you want to get more insights into processing those CloudEvents or even defin
 
 * Build the binary: `go build -ldflags '-linkmode=external' -v -o datadog-service`
 * Run tests: `go test -race -v ./...`
-* Build the docker image: `docker build . -t vadasambar/datadog-service:dev` (Note: Ensure that you use the correct DockerHub account/organization)
+* Build the docker image: `docker build . -t ghcr.io/vadasambar/datadog-service:dev` (Note: Ensure that you use the correct DockerHub account/organization)
 * Run the docker image locally: `docker run --rm -it -p 8080:8080 vadasambar/datadog-service:dev`
-* Push the docker image to DockerHub: `docker push vadasambar/datadog-service:dev` (Note: Ensure that you use the correct DockerHub account/organization)
+* Push the docker image to DockerHub: `docker push ghcr.io/vadasambar/datadog-service:dev` (Note: Ensure that you use the correct DockerHub account/organization)
 * Deploy the service using `kubectl`: `kubectl apply -f deploy/`
 * Delete/undeploy the service using `kubectl`: `kubectl delete -f deploy/`
 * Watch the deployment using `kubectl`: `kubectl -n keptn get deployment datadog-service -o wide`

@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
         - name: datadog-service
-          image: vadasambar/datadog-service:latest # Todo: Replace this with your image name
+          image: ghcr.io/vadasambar/datadog-service:dev # Todo: Replace this with your image name
           ports:
             - containerPort: 8080
           env:
