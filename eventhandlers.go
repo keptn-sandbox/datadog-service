@@ -79,7 +79,7 @@ func HandleReleaseTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudeven
 	return nil
 }
 
-// HandleGetSliTriggeredEvent handles get-sli.triggered events if SLIProvider == datadog-service
+// HandleGetSliTriggeredEvent handles get-sli.triggered events if SLIProvider == datadog
 // This function acts as an example showing how to handle get-sli events by sending .started and .finished events
 // TODO: adapt handler code to your needs
 func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevents.Event, data *keptnv2.GetSLITriggeredEventData) error {
@@ -87,7 +87,7 @@ func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevent
 
 	// Step 1 - Do we need to do something?
 	// Lets make sure we are only processing an event that really belongs to our SLI Provider
-	if data.GetSLI.SLIProvider != "datadog-service" {
+	if data.GetSLI.SLIProvider != "datadog" {
 		log.Printf("Not handling get-sli event as it is meant for %s", data.GetSLI.SLIProvider)
 		return nil
 	}
@@ -113,9 +113,9 @@ func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevent
 	testRunID := labels["testRunId"]
 
 	// Step 5 - get SLI Config File
-	// Get SLI File from datadog-service subdirectory of the config repo - to add the file use:
-	//   keptn add-resource --project=PROJECT --stage=STAGE --service=SERVICE --resource=my-sli-config.yaml  --resourceUri=datadog-service/sli.yaml
-	sliFile := "datadog-service/sli.yaml"
+	// Get SLI File from datadog subdirectory of the config repo - to add the file use:
+	//   keptn add-resource --project=PROJECT --stage=STAGE --service=SERVICE --resource=my-sli-config.yaml  --resourceUri=datadog/sli.yaml
+	sliFile := "datadog/sli.yaml"
 	sliConfigFileContent, err := myKeptn.GetKeptnResource(sliFile)
 
 	// FYI you do not need to "fail" if sli.yaml is missing, you can also assume smart defaults like we do
