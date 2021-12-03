@@ -1,10 +1,15 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
+	"math"
+	"strconv"
+	"strings"
 	"time"
 
+	"github.com/DataDog/datadog-api-client-go/api/v1/datadog"
 	cloudevents "github.com/cloudevents/sdk-go/v2" // make sure to use v2 cloudevents here
 	keptn "github.com/keptn/go-utils/pkg/lib"
 	keptnv2 "github.com/keptn/go-utils/pkg/lib/v0_2_0"
@@ -96,6 +101,15 @@ func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevent
 	// The get-sli.started cloud-event is new since Keptn 0.8.0 and is required to be send when the task is started
 	_, err := myKeptn.SendTaskStartedEvent(data, ServiceName)
 
+	start, err := parseUnixTimestamp(data.GetSLI.Start)
+	if err != nil {
+		return err
+	}
+	end, err := parseUnixTimestamp(data.GetSLI.End)
+	if err != nil {
+		return err
+	}
+
 	if err != nil {
 		errMsg := fmt.Sprintf("Failed to send task started CloudEvent (%s), aborting...", err.Error())
 		log.Println(errMsg)
@@ -141,11 +155,28 @@ func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevent
 	// SLIResult: this is the array that will receive the results
 	indicators := data.GetSLI.Indicators
 	sliResults := []*keptnv2.SLIResult{}
+	ctx := datadog.NewDefaultContext(context.Background())
+	configuration := datadog.NewConfiguration()
+	apiClient := datadog.NewAPIClient(configuration)
 
 	for _, indicatorName := range indicators {
+
+		query := replaceQueryParameters(data, indicatorName, start, end)
+
+		resp, r, err := apiClient.MetricsApi.QueryMetrics(ctx, start.Unix(), end.Unix(), query)
+
+		if err != nil {
+			log.Printf("'%s': error getting value for the query: %v\n", query, resp, err)
+			log.Printf("'%s': full HTTP response: %v\n", query, r)
+		}
+
+		// TODO: Use logger here?
+		// responseContent, _ := json.MarshalIndent(resp, "", "  ")
+		// log.Printf("DEBUG:\n%s\n", responseContent)
+		points := *((*resp.Series)[0].Pointlist)
 		sliResult := &keptnv2.SLIResult{
 			Metric: indicatorName,
-			Value:  123.4, // ToDo: Fetch the values from your monitoring tool here
+			Value:  *points[len(points)-1][1], // ToDo: Fetch the values from your monitoring tool here
 		}
 		sliResults = append(sliResults, sliResult)
 	}
@@ -175,6 +206,38 @@ func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevent
 	}
 
 	return nil
+}
+
+func replaceQueryParameters(data *keptnv2.GetSLITriggeredEventData, query string, start, end time.Time) string {
+	query = strings.Replace(query, "$PROJECT", data.Project, -1)
+	query = strings.Replace(query, "$STAGE", data.Stage, -1)
+	query = strings.Replace(query, "$SERVICE", data.Service, -1)
+	query = strings.Replace(query, "$project", data.Project, -1)
+	query = strings.Replace(query, "$stage", data.Stage, -1)
+	query = strings.Replace(query, "$service", data.Service, -1)
+	durationString := strconv.FormatInt(getDurationInSeconds(start, end), 10) + "s"
+	query = strings.Replace(query, "$DURATION_SECONDS", durationString, -1)
+	return query
+}
+
+func getDurationInSeconds(start, end time.Time) int64 {
+
+	seconds := end.Sub(start).Seconds()
+	return int64(math.Ceil(seconds))
+}
+
+func parseUnixTimestamp(timestamp string) (time.Time, error) {
+	parsedTime, err := time.Parse(time.RFC3339, timestamp)
+	if err == nil {
+		return parsedTime, nil
+	}
+
+	timestampInt, err := strconv.ParseInt(timestamp, 10, 64)
+	if err != nil {
+		return time.Now(), err
+	}
+	unix := time.Unix(timestampInt, 0)
+	return unix, nil
 }
 
 // HandleProblemEvent handles two problem events:
