@@ -120,11 +120,11 @@ func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevent
 	// Get any additional input / configuration data
 	// - Labels: get the incoming labels for potential config data and use it to pass more labels on result, e.g: links
 	// - SLI.yaml: if your service uses SLI.yaml to store query definitions for SLIs get that file from Keptn
-	labels := data.Labels
-	if labels == nil {
-		labels = make(map[string]string)
-	}
-	testRunID := labels["testRunId"]
+	// labels := data.Labels
+	// if labels == nil {
+	// 	labels = make(map[string]string)
+	// }
+	// testRunID := labels["testRunId"]
 
 	// Step 5 - get SLI Config File
 	// Get SLI File from datadog subdirectory of the config repo - to add the file use:
@@ -182,7 +182,7 @@ func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevent
 	}
 
 	// Step 7 - add additional context via labels (e.g., a backlink to the monitoring or CI tool)
-	labels["Link to Data Source"] = "https://mydatasource/myquery?testRun=" + testRunID
+	// labels["Link to Data Source"] = "https://mydatasource/myquery?testRun=" + testRunID
 
 	// Step 8 - Build get-sli.finished event data
 	getSliFinishedEventData := &keptnv2.GetSLIFinishedEventData{
