@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"math"
@@ -130,7 +131,8 @@ func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevent
 	// Get SLI File from datadog subdirectory of the config repo - to add the file use:
 	//   keptn add-resource --project=PROJECT --stage=STAGE --service=SERVICE --resource=my-sli-config.yaml  --resourceUri=datadog/sli.yaml
 	sliFile := "datadog/sli.yaml"
-	sliConfigFileContent, err := myKeptn.GetKeptnResource(sliFile)
+	// sliConfigFileContent, err := myKeptn.GetKeptnResource(sliFile)
+	queries, err := myKeptn.GetSLIConfiguration(data.Project, data.Stage, data.Service, sliFile)
 
 	// FYI you do not need to "fail" if sli.yaml is missing, you can also assume smart defaults like we do
 	// in keptn-contrib/dynatrace-service and keptn-contrib/prometheus-service
@@ -148,7 +150,7 @@ func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevent
 		return err
 	}
 
-	fmt.Println(sliConfigFileContent)
+	fmt.Println(queries)
 
 	// Step 6 - do your work - iterate through the list of requested indicators and return their values
 	// Indicators: this is the list of indicators as requested in the SLO.yaml
@@ -160,25 +162,40 @@ func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevent
 	apiClient := datadog.NewAPIClient(configuration)
 
 	for _, indicatorName := range indicators {
+		// for i := 0; i < 2; i++ {
+		time.Sleep(time.Second * 30)
+		fmt.Println("indicators", indicators)
 
-		query := replaceQueryParameters(data, indicatorName, start, end)
+		fmt.Println("indicatorName", indicatorName)
+		query := replaceQueryParameters(data, queries[indicatorName], start, end)
 
+		fmt.Println("QUERY", query)
 		resp, r, err := apiClient.MetricsApi.QueryMetrics(ctx, start.Unix(), end.Unix(), query)
 
 		if err != nil {
 			log.Printf("'%s': error getting value for the query: %v\n", query, resp, err)
 			log.Printf("'%s': full HTTP response: %v\n", query, r)
+			continue
 		}
 
+		log.Printf("resp: %v", resp)
+		responseContent, _ := json.MarshalIndent(resp, "", "  ")
+		log.Printf("Response from `MetricsApi.QueryMetrics`:\n%s\n", responseContent)
+		log.Printf("(*resp.Series)", (*resp.Series))
 		// TODO: Use logger here?
-		// responseContent, _ := json.MarshalIndent(resp, "", "  ")
-		// log.Printf("DEBUG:\n%s\n", responseContent)
-		points := *((*resp.Series)[0].Pointlist)
-		sliResult := &keptnv2.SLIResult{
-			Metric: indicatorName,
-			Value:  *points[len(points)-1][1], // ToDo: Fetch the values from your monitoring tool here
+
+		if len((*resp.Series)) != 0 {
+			points := *((*resp.Series)[0].Pointlist)
+			sliResult := &keptnv2.SLIResult{
+				Metric:  indicatorName,
+				Value:   *points[len(points)-1][1],
+				Success: true,
+			}
+			log.Printf("sliResult: %v", sliResult)
+			sliResults = append(sliResults, sliResult)
 		}
-		sliResults = append(sliResults, sliResult)
+		// }
+
 	}
 
 	// Step 7 - add additional context via labels (e.g., a backlink to the monitoring or CI tool)
@@ -215,8 +232,8 @@ func replaceQueryParameters(data *keptnv2.GetSLITriggeredEventData, query string
 	query = strings.Replace(query, "$project", data.Project, -1)
 	query = strings.Replace(query, "$stage", data.Stage, -1)
 	query = strings.Replace(query, "$service", data.Service, -1)
-	durationString := strconv.FormatInt(getDurationInSeconds(start, end), 10) + "s"
-	query = strings.Replace(query, "$DURATION_SECONDS", durationString, -1)
+	durationString := strconv.FormatInt(getDurationInSeconds(start, end), 10)
+	query = strings.Replace(query, "$DURATION", durationString, -1)
 	return query
 }
 
