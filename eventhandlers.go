@@ -104,7 +104,7 @@ func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevent
 		resp, r, err := apiClient.MetricsApi.QueryMetrics(ctx, start.Unix(), end.Unix(), query)
 
 		if err != nil {
-			log.Printf("'%s': error getting value for the query: %v\n", query, resp, err)
+			log.Printf("'%s': error getting value for the query: %v : %v\n", query, resp, err)
 			log.Printf("'%s': full HTTP response: %v\n", query, r)
 			continue
 		}
@@ -112,7 +112,7 @@ func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevent
 		log.Printf("resp: %v", resp)
 		responseContent, _ := json.MarshalIndent(resp, "", "  ")
 		log.Printf("Response from `MetricsApi.QueryMetrics`:\n%s\n", responseContent)
-		log.Printf("(*resp.Series)", (*resp.Series))
+		log.Println("(*resp.Series)", (*resp.Series))
 		// TODO: Use logger here?
 
 		if len((*resp.Series)) != 0 {
