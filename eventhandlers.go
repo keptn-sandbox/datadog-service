@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"math"
@@ -14,6 +13,8 @@ import (
 	cloudevents "github.com/cloudevents/sdk-go/v2" // make sure to use v2 cloudevents here
 	keptnv2 "github.com/keptn/go-utils/pkg/lib/v0_2_0"
 )
+
+const sliFile = "datadog/sli.yaml"
 
 // HandleGetSliTriggeredEvent handles get-sli.triggered events if SLIProvider == datadog
 func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevents.Event, data *keptnv2.GetSLITriggeredEventData) error {
@@ -52,18 +53,17 @@ func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevent
 	// Get any additional input / configuration data
 	// - Labels: get the incoming labels for potential config data and use it to pass more labels on result, e.g: links
 	// - SLI.yaml: if your service uses SLI.yaml to store query definitions for SLIs get that file from Keptn
-	// labels := data.Labels
-	// if labels == nil {
-	// 	labels = make(map[string]string)
-	// }
-	// testRunID := labels["testRunId"]
+	labels := data.Labels
+	if labels == nil {
+		labels = make(map[string]string)
+	}
 
 	// Step 5 - get SLI Config File
 	// Get SLI File from datadog subdirectory of the config repo - to add the file use:
 	//   keptn add-resource --project=PROJECT --stage=STAGE --service=SERVICE --resource=my-sli-config.yaml  --resourceUri=datadog/sli.yaml
-	sliFile := "datadog/sli.yaml"
 	// sliConfigFileContent, err := myKeptn.GetKeptnResource(sliFile)
-	queries, err := myKeptn.GetSLIConfiguration(data.Project, data.Stage, data.Service, sliFile)
+	sliConfig, err := myKeptn.GetSLIConfiguration(data.Project, data.Stage, data.Service, sliFile)
+	log.Println("SLI config:", sliConfig)
 
 	// FYI you do not need to "fail" if sli.yaml is missing, you can also assume smart defaults like we do
 	// in keptn-contrib/dynatrace-service and keptn-contrib/prometheus-service
@@ -76,12 +76,11 @@ func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevent
 		_, err = myKeptn.SendTaskFinishedEvent(&keptnv2.EventData{
 			Status: keptnv2.StatusErrored,
 			Result: keptnv2.ResultFailed,
+			Labels: labels,
 		}, ServiceName)
 
 		return err
 	}
-
-	fmt.Println(queries)
 
 	// Step 6 - do your work - iterate through the list of requested indicators and return their values
 	// Indicators: this is the list of indicators as requested in the SLO.yaml
@@ -92,28 +91,25 @@ func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevent
 	configuration := datadog.NewConfiguration()
 	apiClient := datadog.NewAPIClient(configuration)
 
+	log.Println("indicators:", indicators)
+	errored := false
+
 	for _, indicatorName := range indicators {
-		// for i := 0; i < 2; i++ {
+		// Pulling the data from Datadog api immediately gives incorrect data in api response
+		// we have to wait for some time for the correct data to be reflected in the api response
+		// TODO: Find a better way around the sleep time for datadog api
 		time.Sleep(time.Second * 30)
-		fmt.Println("indicators", indicators)
 
-		fmt.Println("indicatorName", indicatorName)
-		query := replaceQueryParameters(data, queries[indicatorName], start, end)
+		query := replaceQueryParameters(data, sliConfig[indicatorName], start, end)
 
-		fmt.Println("QUERY", query)
 		resp, r, err := apiClient.MetricsApi.QueryMetrics(ctx, start.Unix(), end.Unix(), query)
 
 		if err != nil {
 			log.Printf("'%s': error getting value for the query: %v : %v\n", query, resp, err)
 			log.Printf("'%s': full HTTP response: %v\n", query, r)
+			errored = true
 			continue
 		}
-
-		log.Printf("resp: %v", resp)
-		responseContent, _ := json.MarshalIndent(resp, "", "  ")
-		log.Printf("Response from `MetricsApi.QueryMetrics`:\n%s\n", responseContent)
-		log.Println("(*resp.Series)", (*resp.Series))
-		// TODO: Use logger here?
 
 		if len((*resp.Series)) != 0 {
 			points := *((*resp.Series)[0].Pointlist)
@@ -122,10 +118,8 @@ func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevent
 				Value:   *points[len(points)-1][1],
 				Success: true,
 			}
-			log.Printf("sliResult: %v", sliResult)
 			sliResults = append(sliResults, sliResult)
 		}
-		// }
 
 	}
 
@@ -137,12 +131,18 @@ func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevent
 		EventData: keptnv2.EventData{
 			Status: keptnv2.StatusSucceeded,
 			Result: keptnv2.ResultPass,
+			Labels: labels,
 		},
 		GetSLI: keptnv2.GetSLIFinished{
 			IndicatorValues: sliResults,
 			Start:           data.GetSLI.Start,
 			End:             data.GetSLI.End,
 		},
+	}
+
+	if errored {
+		getSliFinishedEventData.EventData.Status = keptnv2.StatusErrored
+		getSliFinishedEventData.EventData.Result = keptnv2.ResultFailed
 	}
 
 	_, err = myKeptn.SendTaskFinishedEvent(getSliFinishedEventData, ServiceName)
