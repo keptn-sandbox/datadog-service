@@ -1,35 +1,3 @@
-# README
-
-**BEFORE YOU START**, please be aware that there are more ways to integrate with your service that don't require creating a service from this template, see https://keptn.sh/docs/0.10.x/integrations/how_integrate/ for more details.
-
-Examples:
-
-* Webhooks: https://keptn.sh/docs/0.10.x/integrations/webhooks/
-* Job-Executor-Service: https://github.com/keptn-sandbox/job-executor-service
-
----
-
-This is a Keptn Service Template written in GoLang. Follow the instructions below for writing your own Keptn integration.
-
-Quick start:
-
-1. In case you want to contribute your service to keptn-sandbox or keptn-contrib, make sure you have read and understood the [Contributing Guidelines](https://github.com/keptn-sandbox/contributing).
-1. Click [Use this template](https://github.com/keptn-sandbox/datadog-service/generate) on top of the repository, or download the repo as a zip-file, extract it into a new folder named after the service you want to create (e.g., simple-service) 
-1. Replace every occurrence of (docker) image names and tags from `vadasambar/datadog-service` to your docker organization and image name (e.g., `yourorganization/simple-service`)
-1. Replace every occurrence of `datadog-service` with the name of your service (e.g., `simple-service`)
-1. Optional (but recommended): Create a git repo (e.g., on `github.com/your-username/simple-service`)
-1. Àdapt the [go.mod](go.mod) file and change `github.com/vadasambar/datadog-service` to the actual package name (e.g., `github.com/your-username/simple-service`)
-1. Add yourself to the [CODEOWNERS](CODEOWNERS) file
-1. Initialize a git repository: 
-  * `git init .`
-  * `git add .`
-  * `git commit -m "Initial Commit"`
-1. Optional: Push your code an upstream git repo (e.g., GitHub) and adapt all links that contain `github.com` (e.g., to `github.com/your-username/simple-service`)
-1. Figure out whether your Kubernetes Deployment requires [any RBAC rules or a different service-account](https://github.com/keptn-sandbox/contributing#rbac-guidelines), and adapt [deploy/service.yaml](deploy/service.yaml) accordingly (initial setup is `serviceAccountName: keptn-default`).
-1. Last but not least: Remove this intro within the README file and make sure the README file properly states what this repository is about
-
----
-
 # datadog-service
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/keptn-sandbox/datadog-service)
 [![Go Report Card](https://goreportcard.com/badge/github.com/keptn-sandbox/datadog-service)](https://goreportcard.com/report/github.com/keptn-sandbox/datadog-service)
@@ -42,9 +10,7 @@ This implements a datadog-service for Keptn. If you want to learn more about Kep
 
 | Keptn Version    | [datadog-service Docker Image](https://ghcr.io/vadasambar/datadog-service/tags) |
 |:----------------:|:----------------------------------------:|
-|       0.6.1      | vadasambar/datadog-service:0.1.0 |
-|       0.7.1      | vadasambar/datadog-service:0.1.1 |
-|       0.7.2      | vadasambar/datadog-service:0.1.2 |
+|       0.11.4      | vadasambar/datadog-service:0.1.0 |
 
 ## Installation
 
@@ -110,9 +76,9 @@ If you want to get more insights into processing those CloudEvents or even defin
 
 * Build the binary: `go build -ldflags '-linkmode=external' -v -o datadog-service`
 * Run tests: `go test -race -v ./...`
-* Build the docker image: `docker build . -t ghcr.io/vadasambar/datadog-service:dev` (Note: Ensure that you use the correct DockerHub account/organization)
-* Run the docker image locally: `docker run --rm -it -p 8080:8080 vadasambar/datadog-service:dev`
-* Push the docker image to DockerHub: `docker push ghcr.io/vadasambar/datadog-service:dev` (Note: Ensure that you use the correct DockerHub account/organization)
+* Build the docker image: `docker build . -t ghcr.io/vadasambar/datadog-service:latest` (Note: Ensure that you use the correct DockerHub account/organization)
+* Run the docker image locally: `docker run --rm -it -p 8080:8080 vadasambar/datadog-service:latest`
+* Push the docker image to DockerHub: `docker push ghcr.io/vadasambar/datadog-service:latest` (Note: Ensure that you use the correct DockerHub account/organization)
 * Deploy the service using `kubectl`: `kubectl apply -f deploy/`
 * Delete/undeploy the service using `kubectl`: `kubectl delete -f deploy/`
 * Watch the deployment using `kubectl`: `kubectl -n keptn get deployment datadog-service -o wide`
