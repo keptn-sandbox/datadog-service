@@ -8,7 +8,7 @@ This implements a datadog-service for Keptn. If you want to learn more about Kep
 
 *Please fill in your versions accordingly*
 
-| Keptn Version    | [datadog-service Docker Image](https://ghcr.io/vadasambar/datadog-service/tags) |
+| Keptn Version    | [datadog-service Docker Image](https://github.com/vadasambar/datadog-service/pkgs/container/datadog-service) |
 |:----------------:|:----------------------------------------:|
 |       0.11.4      | vadasambar/datadog-service:0.1.0 |
 
