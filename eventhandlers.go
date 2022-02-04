@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"math"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -12,18 +12,25 @@ import (
 	"github.com/DataDog/datadog-api-client-go/api/v1/datadog"
 	cloudevents "github.com/cloudevents/sdk-go/v2" // make sure to use v2 cloudevents here
 	keptnv2 "github.com/keptn/go-utils/pkg/lib/v0_2_0"
+	logger "github.com/sirupsen/logrus"
+	"github.com/vadasambar/datadog-service/pkg/utils"
 )
 
 const sliFile = "datadog/sli.yaml"
+const apiSleep = 30
 
 // HandleGetSliTriggeredEvent handles get-sli.triggered events if SLIProvider == datadog
 func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevents.Event, data *keptnv2.GetSLITriggeredEventData) error {
-	log.Printf("Handling get-sli.triggered Event: %s", incomingEvent.Context.GetID())
+	var shkeptncontext string
+	_ = incomingEvent.Context.ExtensionAs("shkeptncontext", &shkeptncontext)
+	configureLogger(incomingEvent.Context.GetID(), shkeptncontext)
+
+	logger.Infof("Handling get-sli.triggered Event: %s", incomingEvent.Context.GetID())
 
 	// Step 1 - Do we need to do something?
 	// Lets make sure we are only processing an event that really belongs to our SLI Provider
 	if data.GetSLI.SLIProvider != "datadog" {
-		log.Printf("Not handling get-sli event as it is meant for %s", data.GetSLI.SLIProvider)
+		logger.Infof("Not handling get-sli event as it is meant for %s", data.GetSLI.SLIProvider)
 		return nil
 	}
 
@@ -31,21 +38,24 @@ func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevent
 	// The get-sli.started cloud-event is new since Keptn 0.8.0 and is required to be send when the task is started
 	_, err := myKeptn.SendTaskStartedEvent(data, ServiceName)
 	if err != nil {
-		log.Printf("err when starting the event: %v", err)
+		logger.Errorf("err when sending task started the event: %v", err)
+		return err
 	}
 
 	start, err := parseUnixTimestamp(data.GetSLI.Start)
 	if err != nil {
+		logger.Errorf("unable to parse sli start timestamp: %v", err)
 		return err
 	}
 	end, err := parseUnixTimestamp(data.GetSLI.End)
 	if err != nil {
+		logger.Errorf("unable to parse sli end timestamp: %v", err)
 		return err
 	}
 
 	if err != nil {
 		errMsg := fmt.Sprintf("Failed to send task started CloudEvent (%s), aborting...", err.Error())
-		log.Println(errMsg)
+		logger.Error(errMsg)
 		return err
 	}
 
@@ -63,14 +73,14 @@ func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevent
 	//   keptn add-resource --project=PROJECT --stage=STAGE --service=SERVICE --resource=my-sli-config.yaml  --resourceUri=datadog/sli.yaml
 	// sliConfigFileContent, err := myKeptn.GetKeptnResource(sliFile)
 	sliConfig, err := myKeptn.GetSLIConfiguration(data.Project, data.Stage, data.Service, sliFile)
-	log.Println("SLI config:", sliConfig)
+	logger.Debugf("SLI config: %v", sliConfig)
 
 	// FYI you do not need to "fail" if sli.yaml is missing, you can also assume smart defaults like we do
 	// in keptn-contrib/dynatrace-service and keptn-contrib/prometheus-service
 	if err != nil {
 		// failed to fetch sli config file
 		errMsg := fmt.Sprintf("Failed to fetch SLI file %s from config repo: %s", sliFile, err.Error())
-		log.Println(errMsg)
+		logger.Error(errMsg)
 		// send a get-sli.finished event with status=error and result=failed back to Keptn
 
 		_, err = myKeptn.SendTaskFinishedEvent(&keptnv2.EventData{
@@ -91,25 +101,29 @@ func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevent
 	configuration := datadog.NewConfiguration()
 	apiClient := datadog.NewAPIClient(configuration)
 
-	log.Println("indicators:", indicators)
+	logger.Debug("indicators:", indicators)
 	errored := false
 
 	for _, indicatorName := range indicators {
 		// Pulling the data from Datadog api immediately gives incorrect data in api response
 		// we have to wait for some time for the correct data to be reflected in the api response
 		// TODO: Find a better way around the sleep time for datadog api
-		time.Sleep(time.Second * 30)
+		logger.Debugf("waiting for %vs so that the metrics data is reflected correctly in the api", apiSleep)
+		time.Sleep(time.Second * apiSleep)
 
 		query := replaceQueryParameters(data, sliConfig[indicatorName], start, end)
 
 		resp, r, err := apiClient.MetricsApi.QueryMetrics(ctx, start.Unix(), end.Unix(), query)
 
 		if err != nil {
-			log.Printf("'%s': error getting value for the query: %v : %v\n", query, resp, err)
-			log.Printf("'%s': full HTTP response: %v\n", query, r)
+			logger.Errorf("'%s': error getting value for the query: %v : %v\n", query, resp, err)
+			logger.Errorf("'%s': full HTTP response: %v\n", query, r)
 			errored = true
 			continue
 		}
+
+		logger.Debugf("response from the metrics api: %v", resp)
+		logger.Debugf("data from the metrics api: %v", *resp.Series)
 
 		if len((*resp.Series)) != 0 {
 			points := *((*resp.Series)[0].Pointlist)
@@ -145,15 +159,37 @@ func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevent
 		getSliFinishedEventData.EventData.Result = keptnv2.ResultFailed
 	}
 
+	logger.Debugf("SLI finished event: %v", *getSliFinishedEventData)
+
 	_, err = myKeptn.SendTaskFinishedEvent(getSliFinishedEventData, ServiceName)
 
 	if err != nil {
 		errMsg := fmt.Sprintf("Failed to send task finished CloudEvent (%s), aborting...", err.Error())
-		log.Println(errMsg)
+		logger.Error(errMsg)
 		return err
 	}
 
 	return nil
+}
+
+func configureLogger(eventID, keptnContext string) {
+	logger.SetFormatter(&utils.Formatter{
+		Fields: logger.Fields{
+			"service":      "datadog-service",
+			"eventId":      eventID,
+			"keptnContext": keptnContext,
+		},
+		BuiltinFormatter: &logger.TextFormatter{},
+	})
+
+	if os.Getenv(envVarLogLevel) != "" {
+		logLevel, err := logger.ParseLevel(os.Getenv(envVarLogLevel))
+		if err != nil {
+			logger.WithError(err).Error("could not parse log level provided by 'LOG_LEVEL' env var")
+		} else {
+			logger.SetLevel(logLevel)
+		}
+	}
 }
 
 func replaceQueryParameters(data *keptnv2.GetSLITriggeredEventData, query string, start, end time.Time) string {

@@ -4,16 +4,19 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"os"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2" // make sure to use v2 cloudevents here
 	"github.com/kelseyhightower/envconfig"
 	keptn "github.com/keptn/go-utils/pkg/lib/keptn"
 	keptnv2 "github.com/keptn/go-utils/pkg/lib/v0_2_0"
+	logger "github.com/sirupsen/logrus"
+	"github.com/vadasambar/datadog-service/pkg/utils"
 )
 
 var keptnOptions = keptn.KeptnOpts{}
+
+const envVarLogLevel = "LOG_LEVEL"
 
 type envConfig struct {
 	// Port on which to listen for cloudevents
@@ -29,13 +32,15 @@ type envConfig struct {
 // ServiceName specifies the current services name (e.g., used as source when sending CloudEvents)
 const ServiceName = "datadog-service"
 
+// based on https://github.com/sirupsen/logrus/pull/653#issuecomment-454467900
+
 /**
  * Parses a Keptn Cloud Event payload (data attribute)
  */
 func parseKeptnCloudEventPayload(event cloudevents.Event, data interface{}) error {
 	err := event.DataAs(data)
 	if err != nil {
-		log.Fatalf("Got Data Error: %s", err.Error())
+		logger.Errorf("Got Data Error: %s", err.Error())
 		return err
 	}
 	return nil
@@ -48,16 +53,16 @@ func parseKeptnCloudEventPayload(event cloudevents.Event, data interface{}) erro
  */
 func processKeptnCloudEvent(ctx context.Context, event cloudevents.Event) error {
 	// create keptn handler
-	log.Printf("Initializing Keptn Handler")
+	logger.Info("Initializing Keptn Handler")
 	myKeptn, err := keptnv2.NewKeptn(&event, keptnOptions)
 	if err != nil {
 		return errors.New("Could not create Keptn Handler: " + err.Error())
 	}
 
-	log.Printf("gotEvent(%s): %s - %s", event.Type(), myKeptn.KeptnContext, event.Context.GetID())
+	logger.Infof("gotEvent(%s): %s - %s", event.Type(), myKeptn.KeptnContext, event.Context.GetID())
 
 	if err != nil {
-		log.Printf("failed to parse incoming cloudevent: %v", err)
+		logger.Errorf("failed to parse incoming cloudevent: %v", err)
 		return err
 	}
 
@@ -107,7 +112,7 @@ func processKeptnCloudEvent(ctx context.Context, event cloudevents.Event) error 
 	// -------------------------------------------------------
 	// sh.keptn.event.get-sli (sent by lighthouse-service to fetch SLIs from the sli provider)
 	case keptnv2.GetTriggeredEventType(keptnv2.GetSLITaskName): // sh.keptn.event.get-sli.triggered
-		log.Printf("Processing Get-SLI.Triggered Event")
+		logger.Infof("Processing Get-SLI.Triggered Event")
 
 		eventData := &keptnv2.GetSLITriggeredEventData{}
 		parseKeptnCloudEventPayload(event, eventData)
@@ -116,10 +121,9 @@ func processKeptnCloudEvent(ctx context.Context, event cloudevents.Event) error 
 
 	}
 	// Unknown Event -> Throw Error!
-	var errorMsg string
-	errorMsg = fmt.Sprintf("Unhandled Keptn Cloud Event: %s", event.Type())
+	errorMsg := fmt.Sprintf("Unhandled Keptn Cloud Event: %s", event.Type())
 
-	log.Print(errorMsg)
+	logger.Error(errorMsg)
 	return errors.New(errorMsg)
 }
 
@@ -131,9 +135,27 @@ func processKeptnCloudEvent(ctx context.Context, event cloudevents.Event) error 
  * env=runlocal   -> will fetch resources from local drive instead of configuration service
  */
 func main() {
+	logger.SetFormatter(&utils.Formatter{
+		Fields: logger.Fields{
+			"service":      "datadog-service",
+			"eventId":      "",
+			"keptnContext": "",
+		},
+		BuiltinFormatter: &logger.TextFormatter{},
+	})
+
+	if os.Getenv(envVarLogLevel) != "" {
+		logLevel, err := logger.ParseLevel(os.Getenv(envVarLogLevel))
+		if err != nil {
+			logger.WithError(err).Error("could not parse log level provided by 'LOG_LEVEL' env var")
+		} else {
+			logger.SetLevel(logLevel)
+		}
+	}
+
 	var env envConfig
 	if err := envconfig.Process("", &env); err != nil {
-		log.Fatalf("Failed to process env var: %s", err)
+		logger.Fatalf("Failed to process env var: %s", err)
 	}
 
 	os.Exit(_main(os.Args[1:], env))
@@ -145,33 +167,32 @@ func main() {
 func _main(args []string, env envConfig) int {
 	// configure keptn options
 	if env.Env == "local" {
-		log.Println("env=local: Running with local filesystem to fetch resources")
+		logger.Info("env=local: Running with local filesystem to fetch resources")
 		keptnOptions.UseLocalFileSystem = true
 	}
 
 	keptnOptions.ConfigurationServiceURL = env.ConfigurationServiceUrl
 
-	log.Println("Starting datadog-service...")
-	log.Printf("    on Port = %d; Path=%s", env.Port, env.Path)
+	logger.Info("Starting datadog-service...")
+	logger.Infof("    on Port = %d; Path=%s", env.Port, env.Path)
 
 	ctx := context.Background()
 	ctx = cloudevents.WithEncodingStructured(ctx)
 
-	log.Printf("Creating new http handler")
+	logger.Infof("Creating new http handler")
 
 	// configure http server to receive cloudevents
 	p, err := cloudevents.NewHTTP(cloudevents.WithPath(env.Path), cloudevents.WithPort(env.Port))
 
 	if err != nil {
-		log.Fatalf("failed to create client, %v", err)
+		logger.Fatalf("failed to create client, %v", err)
 	}
 	c, err := cloudevents.NewClient(p)
 	if err != nil {
-		log.Fatalf("failed to create client, %v", err)
+		logger.Fatalf("failed to create client, %v", err)
 	}
 
-	log.Printf("Starting receiver")
-	log.Fatal(c.StartReceiver(ctx, processKeptnCloudEvent))
-
+	logger.Infof("Starting receiver")
+	logger.Fatal(c.StartReceiver(ctx, processKeptnCloudEvent).Error())
 	return 0
 }
