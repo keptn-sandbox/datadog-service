@@ -112,9 +112,8 @@ func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevent
 		time.Sleep(time.Second * apiSleep)
 
 		query := replaceQueryParameters(data, sliConfig[indicatorName], start, end)
-
+		logger.Debugf("actual query sent to datadog: %v, from: %v, to: %v", query, start.Unix(), end.Unix())
 		resp, r, err := apiClient.MetricsApi.QueryMetrics(ctx, start.Unix(), end.Unix(), query)
-
 		if err != nil {
 			logger.Errorf("'%s': error getting value for the query: %v : %v\n", query, resp, err)
 			logger.Errorf("'%s': full HTTP response: %v\n", query, r)
@@ -123,7 +122,6 @@ func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevent
 		}
 
 		logger.Debugf("response from the metrics api: %v", resp)
-		logger.Debugf("data from the metrics api: %v", *resp.Series)
 
 		if len((*resp.Series)) != 0 {
 			points := *((*resp.Series)[0].Pointlist)
@@ -132,15 +130,15 @@ func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevent
 				Value:   *points[len(points)-1][1],
 				Success: true,
 			}
+			logger.WithFields(logger.Fields{"indicatorName": indicatorName}).Debugf("SLI result from the metrics api: %v", sliResult)
 			sliResults = append(sliResults, sliResult)
+		} else {
+			logger.WithFields(logger.Fields{"indicatorName": indicatorName}).Debugf("got 0 in the SLI result (indicates empty response from the API)")
 		}
 
 	}
 
-	// Step 7 - add additional context via labels (e.g., a backlink to the monitoring or CI tool)
-	// labels["Link to Data Source"] = "https://mydatasource/myquery?testRun=" + testRunID
-
-	// Step 8 - Build get-sli.finished event data
+	// Step 7 - Build get-sli.finished event data
 	getSliFinishedEventData := &keptnv2.GetSLIFinishedEventData{
 		EventData: keptnv2.EventData{
 			Status: keptnv2.StatusSucceeded,
