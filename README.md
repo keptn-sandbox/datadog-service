@@ -134,8 +134,9 @@ Once you have confirmed that everything works and your version is ready to go, y
 * merge any changes from the release branch back to the master branch.
 
 ## Known problems
-1. There is an on-purpose 30s delay before the datadog metrics API is called. This is because, calling the metrics API earlier leads to incorrect data. [Issue](https://github.com/vadasambar/datadog-service/issues/8)
-3. Does not support default queries for throughput, error rate, request latency etc., i.e., you have to enter the entire query. [Issue](https://github.com/vadasambar/datadog-service/issues/9)
+1. If the evaluation window of the query is too short, the api might return an empty result which datadog-service treats as 0 and fails the evaluation. [Issue](https://github.com/vadasambar/datadog-service/issues/10)
+2. There is an on-purpose 30s delay before the datadog metrics API is called. This is because, calling the metrics API earlier leads to incorrect data. [Issue](https://github.com/vadasambar/datadog-service/issues/8)
+3. Does not support default queries for throughput, error rate, request latency etc., i.e., you have to enter the entire query
 
 ## License
 
