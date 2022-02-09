@@ -133,6 +133,11 @@ Once you have confirmed that everything works and your version is ready to go, y
 * create a new release on the release branch using the [GitHub releases page](https://github.com/keptn-sandbox/datadog-service/releases), and
 * merge any changes from the release branch back to the master branch.
 
+## Known problems
+1. If the evaluation window of the query is too short, the api might return an empty result which datadog-service treats as 0 and fails the evaluation.
+2. There is an on-purpose 30s delay before the datadog metrics API is called. This is because, calling the metrics API earlier leads to incorrect data. [Issue](https://github.com/vadasambar/datadog-service/issues/8)
+3. Does not support default queries for throughput, error rate, request latency etc., i.e., you have to enter the entire query
+
 ## License
 
 Please find more information in the [LICENSE](LICENSE) file.
