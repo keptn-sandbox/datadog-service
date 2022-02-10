@@ -29,7 +29,7 @@ func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevent
 
 	// Step 1 - Do we need to do something?
 	// Lets make sure we are only processing an event that really belongs to our SLI Provider
-	if data.GetSLI.SLIProvider != "datadog" {
+	if data.GetSLI.SLIProvider != "datadog-service" {
 		logger.Infof("Not handling get-sli event as it is meant for %s", data.GetSLI.SLIProvider)
 		return nil
 	}
