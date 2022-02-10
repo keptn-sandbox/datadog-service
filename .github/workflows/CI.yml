@@ -150,8 +150,8 @@ jobs:
         # that's fine, but it means we can't push images to dockerhub
         uses: docker/login-action@v1.10.0
         with:
-          username: ${{ secrets.REGISTRY_USER }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
 
       - id: docker_build
         name: Docker Build
