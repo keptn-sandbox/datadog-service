@@ -1,6 +1,6 @@
 # datadog-service
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/keptn-sandbox/datadog-service)
-[![Go Report Card](https://goreportcard.com/badge/github.com/keptn-sandbox/datadog-service)](https://goreportcard.com/report/github.com/keptn-sandbox/datadog-service)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/vadasambar/datadog-service)
+[![Go Report Card](https://goreportcard.com/badge/github.com/keptn-sandbox/datadog-service)](https://goreportcard.com/report/github.com/vadasambar/datadog-service)
 
 This implements a datadog-service for Keptn. If you want to learn more about Keptn visit us on [keptn.sh](https://keptn.sh)
 
