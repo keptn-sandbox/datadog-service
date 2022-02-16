@@ -1,7 +1,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "keptn-service.name" -}}
+{{- define "datadog-service.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -10,7 +10,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "keptn-service.fullname" -}}
+{{- define "datadog-service.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -26,16 +26,16 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "keptn-service.chart" -}}
+{{- define "datadog-service.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "keptn-service.labels" -}}
-helm.sh/chart: {{ include "keptn-service.chart" . }}
-{{ include "keptn-service.selectorLabels" . }}
+{{- define "datadog-service.labels" -}}
+helm.sh/chart: {{ include "datadog-service.chart" . }}
+{{ include "datadog-service.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -46,17 +46,17 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "keptn-service.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "keptn-service.name" . }}
+{{- define "datadog-service.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "datadog-service.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "keptn-service.serviceAccountName" -}}
+{{- define "datadog-service.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "keptn-service.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "datadog-service.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}

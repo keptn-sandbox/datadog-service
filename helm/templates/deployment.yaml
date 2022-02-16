@@ -1,15 +1,15 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "keptn-service.fullname" . }}
+  name: {{ include "datadog-service.fullname" . }}
   labels:
-    {{- include "keptn-service.labels" . | nindent 4 }}
+    {{- include "datadog-service.labels" . | nindent 4 }}
 
 spec:
   replicas: 1
   selector:
     matchLabels:
-      {{- include "keptn-service.selectorLabels" . | nindent 6 }}
+      {{- include "datadog-service.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -17,32 +17,37 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "keptn-service.selectorLabels" . | nindent 8 }}
+        {{- include "datadog-service.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "keptn-service.serviceAccountName" . }}
+      serviceAccountName: {{ include "datadog-service.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
-        - name: keptn-service
+        - name: datadog-service
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           {{- if .Values.image }}
           image: {{ .Values.image }} # use image from .Values.image (e.g., when starting via skaffold)
           {{- else }}
-          image: "{{ .Values.keptnservice.image.repository }}:{{ .Values.keptnservice.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.datadogservice.image.repository }}:{{ .Values.datadogservice.image.tag | default .Chart.AppVersion }}"
           {{- end }}
-          imagePullPolicy: {{ .Values.keptnservice.image.pullPolicy }}
+          imagePullPolicy: {{ .Values.datadogservice.image.pullPolicy }}
           ports:
             - containerPort: 80
+          envFrom:
+          - secretRef:
+              name: "{{ .Values.datadogservice.datadogSecret }}"
           env:
           - name: CONFIGURATION_SERVICE
             value: "http://localhost:8081/configuration-service"
           - name: env
             value: 'production'
+          - name: LOG_LEVEL
+            value: "{{ .Values.datadogservice.logLevel }}"
           livenessProbe:
             httpGet:
               path: /health
@@ -69,7 +74,7 @@ spec:
               cpu: "500m"
           env:
             - name: PUBSUB_TOPIC
-              value: 'sh.keptn.event.test.triggered'
+              value: 'sh.keptn.event.get-sli.triggered'
             - name: PUBSUB_RECIPIENT
               value: '127.0.0.1'
             - name: STAGE_FILTER

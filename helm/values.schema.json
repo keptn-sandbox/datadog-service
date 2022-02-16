@@ -48,7 +48,7 @@
         }
       }
     },
-    "keptnservice": {
+    "datadogservice": {
       "type": "object",
       "required": [
         "image"

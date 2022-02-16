@@ -1,8 +1,12 @@
-keptnservice:
+datadogservice:
+  logLevel: debug
+  # Secret containing datadog's DD_API_KEY
+  # DD_APP_KEY and DD_SITE (key names should be an exact match)
+  datadogSecret: datadog-secret
   image:
     repository: ghcr.io/vadasambar/datadog-service # Container Image Name
-    pullPolicy: Always                   # Kubernetes Image Pull Policy
-    tag: "dev"                                    # Container Tag
+    pullPolicy: IfNotPresent                   # Kubernetes Image Pull Policy
+    tag: 0.1.0                                    # Container Tag
   service:
     enabled: true                              # Creates a Kubernetes Service for the datadog-service
 
@@ -16,7 +20,7 @@ distributor:
     tag: ""                                  # Container Tag
 
 remoteControlPlane:
-  enabled: true                             # Enables remote execution plane mode
+  enabled: false                             # Enables remote execution plane mode
   api:
     protocol: "http"                        # Used Protocol (http, https)
     hostname: ""                            # Hostname of the control plane cluster (and Port)

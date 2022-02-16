@@ -11,10 +11,10 @@ The following table lists the configurable parameters of the datadog-service cha
 
 | Parameter                | Description             | Default        |
 | ------------------------ | ----------------------- | -------------- |
-| `keptnservice.image.repository` | Container image name | `"ghcr.io/vadasambar/datadog-service"` |
-| `keptnservice.image.pullPolicy` | Kubernetes image pull policy | `"IfNotPresent"` |
-| `keptnservice.image.tag` | Container tag | `""` |
-| `keptnservice.service.enabled` | Creates a kubernetes service for the datadog-service | `true` |
+| `datadogservice.image.repository` | Container image name | `"ghcr.io/vadasambar/datadog-service"` |
+| `datadogservice.image.pullPolicy` | Kubernetes image pull policy | `"IfNotPresent"` |
+| `datadogservice.image.tag` | Container tag | `""` |
+| `datadogservice.service.enabled` | Creates a kubernetes service for the datadog-service | `true` |
 | `distributor.stageFilter` | Sets the stage this helm service belongs to | `""` |
 | `distributor.serviceFilter` | Sets the service this helm service belongs to | `""` |
 | `distributor.projectFilter` | Sets the project this helm service belongs to | `""` |
