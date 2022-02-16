@@ -1,6 +1,6 @@
 # datadog-service
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/vadasambar/datadog-service)
-[![Go Report Card](https://goreportcard.com/badge/github.com/keptn-sandbox/datadog-service)](https://goreportcard.com/report/github.com/vadasambar/datadog-service)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/keptn-sandbox/datadog-service)
+[![Go Report Card](https://goreportcard.com/badge/github.com/keptn-sandbox/datadog-service)](https://goreportcard.com/report/github.com/keptn-sandbox/datadog-service)
 
 This implements a datadog-service for Keptn. If you want to learn more about Keptn visit us on [keptn.sh](https://keptn.sh)
 
@@ -8,9 +8,9 @@ This implements a datadog-service for Keptn. If you want to learn more about Kep
 
 *Please fill in your versions accordingly*
 
-| Keptn Version    | [datadog-service Docker Image](https://github.com/vadasambar/datadog-service/pkgs/container/datadog-service) |
+| Keptn Version    | [datadog-service Docker Image](https://github.com/keptn-sandbox/datadog-service/pkgs/container/datadog-service) |
 |:----------------:|:----------------------------------------:|
-|       0.11.4      | ghcr.io/vadasambar/datadog-service:0.1.0 |
+|       0.11.4      | ghcr.io/keptn-sandbox/datadog-service:0.1.0 |
 
 ## Installation
 
@@ -36,7 +36,7 @@ kubectl -n keptn get pods -l run=datadog-service
 Adapt and use the following command in case you want to up- or downgrade your installed version (specified by the `$VERSION` placeholder):
 
 ```console
-kubectl -n keptn set image deployment/datadog-service datadog-service=vadasambar/datadog-service:$VERSION --record
+kubectl -n keptn set image deployment/datadog-service datadog-service=keptn-sandbox/datadog-service:$VERSION --record
 ```
 
 ### Uninstall
@@ -76,9 +76,9 @@ If you want to get more insights into processing those CloudEvents or even defin
 
 * Build the binary: `go build -ldflags '-linkmode=external' -v -o datadog-service`
 * Run tests: `go test -race -v ./...`
-* Build the docker image: `docker build . -t ghcr.io/vadasambar/datadog-service:latest` (Note: Ensure that you use the correct DockerHub account/organization)
-* Run the docker image locally: `docker run --rm -it -p 8080:8080 vadasambar/datadog-service:latest`
-* Push the docker image to DockerHub: `docker push ghcr.io/vadasambar/datadog-service:latest` (Note: Ensure that you use the correct DockerHub account/organization)
+* Build the docker image: `docker build . -t ghcr.io/keptn-sandbox/datadog-service:latest` (Note: Ensure that you use the correct DockerHub account/organization)
+* Run the docker image locally: `docker run --rm -it -p 8080:8080 keptn-sandbox/datadog-service:latest`
+* Push the docker image to DockerHub: `docker push ghcr.io/keptn-sandbox/datadog-service:latest` (Note: Ensure that you use the correct DockerHub account/organization)
 * Deploy the service using `kubectl`: `kubectl apply -f deploy/`
 * Delete/undeploy the service using `kubectl`: `kubectl delete -f deploy/`
 * Watch the deployment using `kubectl`: `kubectl -n keptn get deployment datadog-service -o wide`
@@ -134,9 +134,9 @@ Once you have confirmed that everything works and your version is ready to go, y
 * merge any changes from the release branch back to the master branch.
 
 ## Known problems
-1. If the evaluation window of the query is too short, the api might return an empty result which datadog-service treats as 0 and fails the evaluation. [Issue](https://github.com/vadasambar/datadog-service/issues/10)
-2. There is an on-purpose 30s delay before the datadog metrics API is called. This is because, calling the metrics API earlier leads to incorrect data. [Issue](https://github.com/vadasambar/datadog-service/issues/8)
-3. Does not support default queries for throughput, error rate, request latency etc., i.e., you have to enter the entire query. [Issue](https://github.com/vadasambar/datadog-service/issues/9)
+1. If the evaluation window of the query is too short, the api might return an empty result which datadog-service treats as 0 and fails the evaluation. [Issue](https://github.com/keptn-sandbox/datadog-service/issues/10)
+2. There is an on-purpose 30s delay before the datadog metrics API is called. This is because, calling the metrics API earlier leads to incorrect data. [Issue](https://github.com/keptn-sandbox/datadog-service/issues/8)
+3. Does not support default queries for throughput, error rate, request latency etc., i.e., you have to enter the entire query. [Issue](https://github.com/keptn-sandbox/datadog-service/issues/9)
 
 ## License
 
