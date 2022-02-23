@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "datadog-service.fullname" . }}
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
   labels:
     {{- include "datadog-service.labels" . | nindent 4 }}
 
@@ -40,7 +41,7 @@ spec:
             - containerPort: 80
           envFrom:
           - secretRef:
-              name: "{{ .Values.datadogservice.datadogSecret }}"
+              name: "{{ include "datadog-service.fullname" . }}"
           env:
           - name: CONFIGURATION_SERVICE
             value: "http://localhost:8081/configuration-service"
@@ -48,10 +49,6 @@ spec:
             value: 'production'
           - name: LOG_LEVEL
             value: "{{ .Values.datadogservice.logLevel }}"
-          livenessProbe:
-            httpGet:
-              path: /health
-              port: 10999
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
         - name: distributor
@@ -83,6 +80,31 @@ spec:
               value: "{{ .Values.distributor.projectFilter }}"
             - name: SERVICE_FILTER
               value: "{{ .Values.distributor.serviceFilter }}"
+            - name: VERSION
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: 'metadata.labels[''app.kubernetes.io/version'']'
+            - name: K8S_DEPLOYMENT_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: 'metadata.labels[''app.kubernetes.io/name'']'
+            - name: K8S_POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: K8S_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: K8S_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.nodeName
             {{- if .Values.remoteControlPlane.enabled }}
             - name: KEPTN_API_ENDPOINT
               value: "{{ .Values.remoteControlPlane.api.protocol }}://{{ .Values.remoteControlPlane.api.hostname }}/api"

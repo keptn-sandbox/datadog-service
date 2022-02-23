@@ -1,10 +1,18 @@
+# Sets namespace for all the templates (set to chart release's namespace if empty)
+namespace: keptn
 datadogservice:
   logLevel: debug
+  # Set to DD_API_KEY in the chart's Secret
+  ddApikey: ""
+  # Set to DD_APP_KEY in the chart's Secret
+  ddAppKey: ""
+  # Set to DD_SITE in the chart's Secret
+  ddSite: ""
   # Secret containing datadog's DD_API_KEY
-  # DD_APP_KEY and DD_SITE (key names should be an exact match)
-  datadogSecret: datadog-secret
+  # DD_APP_KEY, DD_API_KEY and DD_SITE (key names should be an exact match)
+  existingSecret: "" # If you want to use existing Secret in the cluster
   image:
-    repository: ghcr.io/vadasambar/datadog-service # Container Image Name
+    repository: ghcr.io/keptn-sandbox/datadog-service # Container Image Name
     pullPolicy: IfNotPresent                   # Kubernetes Image Pull Policy
     tag: 0.1.0                                    # Container Tag
   service:
@@ -17,7 +25,7 @@ distributor:
   image:
     repository: ghcr.io/keptn/distributor  # Container Image Name
     pullPolicy: IfNotPresent                 # Kubernetes Image Pull Policy
-    tag: ""                                  # Container Tag
+    tag: "0.10.0"                                  # Container Tag
 
 remoteControlPlane:
   enabled: false                             # Enables remote execution plane mode
