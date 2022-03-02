@@ -14,7 +14,7 @@ datadogservice:
   image:
     repository: ghcr.io/keptn-sandbox/datadog-service # Container Image Name
     pullPolicy: IfNotPresent                   # Kubernetes Image Pull Policy
-    tag: 0.1.0                                    # Container Tag
+    tag: 0.2.0                                    # Container Tag
   service:
     enabled: true                              # Creates a Kubernetes Service for the datadog-service
 

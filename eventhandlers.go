@@ -16,8 +16,23 @@ import (
 	"github.com/vadasambar/datadog-service/pkg/utils"
 )
 
-const sliFile = "datadog/sli.yaml"
-const apiSleep = 30
+const (
+	sliFile                        = "datadog/sli.yaml"
+	defaultSleepBeforeAPIInSeconds = 30
+)
+
+// We have to put a min of 30s of sleep for the datadog API to reflect the data correctly
+// More info: https://github.com/keptn-sandbox/datadog-service/issues/8
+var sleepBeforeAPIInSeconds int
+
+func init() {
+	var err error
+	sleepBeforeAPIInSeconds, err = strconv.Atoi(strings.TrimSpace(os.Getenv("SLEEP_BEFORE_API_IN_SECONDS")))
+	if err != nil || sleepBeforeAPIInSeconds < defaultSleepBeforeAPIInSeconds {
+		logger.Infof("defaulting SLEEP_BEFORE_API_IN_SECONDS to 30s because it was set to '%v' which is less than the min allowed value of 30s", sleepBeforeAPIInSeconds)
+		sleepBeforeAPIInSeconds = defaultSleepBeforeAPIInSeconds
+	}
+}
 
 // HandleGetSliTriggeredEvent handles get-sli.triggered events if SLIProvider == datadog
 func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevents.Event, data *keptnv2.GetSLITriggeredEventData) error {
@@ -29,7 +44,7 @@ func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevent
 
 	// Step 1 - Do we need to do something?
 	// Lets make sure we are only processing an event that really belongs to our SLI Provider
-	if data.GetSLI.SLIProvider != "datadog-service" {
+	if data.GetSLI.SLIProvider != "datadog" {
 		logger.Infof("Not handling get-sli event as it is meant for %s", data.GetSLI.SLIProvider)
 		return nil
 	}
@@ -108,8 +123,8 @@ func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevent
 		// Pulling the data from Datadog api immediately gives incorrect data in api response
 		// we have to wait for some time for the correct data to be reflected in the api response
 		// TODO: Find a better way around the sleep time for datadog api
-		logger.Debugf("waiting for %vs so that the metrics data is reflected correctly in the api", apiSleep)
-		time.Sleep(time.Second * apiSleep)
+		logger.Debugf("waiting for %vs so that the metrics data is reflected correctly in the api", sleepBeforeAPIInSeconds)
+		time.Sleep(time.Second * time.Duration(sleepBeforeAPIInSeconds))
 
 		query := replaceQueryParameters(data, sliConfig[indicatorName], start, end)
 		logger.Debugf("actual query sent to datadog: %v, from: %v, to: %v", query, start.Unix(), end.Unix())

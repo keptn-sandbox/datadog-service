@@ -4,18 +4,17 @@
         "customFilters": [],
         "end": "2021-01-15T15:09:45.000Z",
         "indicators": [
-          "response_time_p95",
-          "some_other_metric"
+          "system_load"
         ],
         "sliProvider": "datadog-service",
         "start": "2021-01-15T15:04:45.000Z"
       },
       "labels": null,
       "message": "",
-      "project": "sockshop",
+      "project": "podtatohead",
       "result": "",
-      "service": "carts",
-      "stage": "staging",
+      "service": "helloservice",
+      "stage": "hardening",
       "status": ""
     },
     "id": "409539ae-c0b9-436e-abc6-c257292e28ff",

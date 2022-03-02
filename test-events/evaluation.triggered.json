@@ -9,10 +9,10 @@
       },
       "labels": null,
       "message": "",
-      "project": "sockshop",
+      "project": "podtatohead",
       "result": "",
-      "service": "carts",
-      "stage": "staging",
+      "service": "helloservice",
+      "stage": "hardening",
       "status": "",
       "test": {
         "end": "",

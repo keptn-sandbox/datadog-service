@@ -16,7 +16,9 @@ import (
 
 var keptnOptions = keptn.KeptnOpts{}
 
-const envVarLogLevel = "LOG_LEVEL"
+const (
+	envVarLogLevel = "LOG_LEVEL"
+)
 
 type envConfig struct {
 	// Port on which to listen for cloudevents
