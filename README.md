@@ -11,6 +11,7 @@ This implements a datadog-service for Keptn. If you want to learn more about Kep
 | Keptn Version    | [datadog-service Docker Image](https://github.com/keptn-sandbox/datadog-service/pkgs/container/datadog-service) |
 |:----------------:|:----------------------------------------:|
 |       0.11.4      | ghcr.io/keptn-sandbox/datadog-service:0.1.0 |
+|       0.11.4      | ghcr.io/keptn-sandbox/datadog-service:0.2.0 |
 
 ## Installation
 
