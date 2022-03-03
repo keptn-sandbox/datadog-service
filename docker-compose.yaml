@@ -1,7 +1,7 @@
 
 version: '3.7'
 services:
-  keptn-service:
+  datadog-service:
     container_name: 'datadog-service'
     build: .
     depends_on:
