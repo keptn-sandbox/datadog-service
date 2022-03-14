@@ -4,6 +4,21 @@
 
 This implements a datadog-service for Keptn. If you want to learn more about Keptn visit us on [keptn.sh](https://keptn.sh)
 
+Check the issue on the main repo for more info: https://github.com/keptn/keptn/issues/2652
+
+
+## Quickstart
+If you are on Mac or Linux, you can use [examples/kup.sh](./examples/kup.sh). This script creates a local minikube cluster, installs Keptn, Istio, Datadog and the Datadog integration for Keptn (check the script for pre-requisites). 
+
+To use the script,
+```bash
+$ export DD_API_KEY="<your-datadog-api-key>" DD_APP_KEY="<your-datadog-app-key>" DD_SITE="datadoghq.com" 
+$ examples/kup.sh
+```
+Check [the official docs](https://docs.datadoghq.com/account_management/api-app-keys/) for how to create Datadog API key and Application key
+
+Note: Application keys get the same permissions as you. You might want to narrow down the permissions (datadog-service only reads the metrics from the API)
+
 ## Compatibility Matrix
 
 *Please fill in your versions accordingly*
