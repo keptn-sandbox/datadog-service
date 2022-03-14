@@ -167,7 +167,7 @@ check_if_kubectl_cli_is_installed
 # Kill an existing port-forward if it exists 
 ps aux | grep 'kubectl port-forward svc/api-gateway-nginx 5000' | grep -v 'grep' | awk '{print $2}' | xargs -I{} kill -9 {}
 echo "Port-forwarding Keptn API"
-kubectl port-forward svc/api-gateway-nginx 5000:80 -nkeptn
+kubectl port-forward svc/api-gateway-nginx 5000:80 -nkeptn &
 keptn auth --endpoint=localhost:5000
 
 kubectl config set-context --current --namespace=keptn
