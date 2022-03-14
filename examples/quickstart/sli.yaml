@@ -1,0 +1,4 @@
+---
+spec_version: '1.0'
+indicators:
+  system_load: avg:system.load.1{*}.rollup(avg, $DURATION)
