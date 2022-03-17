@@ -227,6 +227,8 @@ kubectl apply -f ./quickstart/lighthouse_config.yaml
 # 2. Sets it up with the API keys in a K8s Secret
 # 3. Installs datadog integration for Keptn
 
+helm repo add datadog https://helm.datadoghq.com
+
 # Install datadog
 # Uncomment this line if you want to install the Datadog operator
 # helm install my-datadog-operator datadog/datadog-operator
@@ -280,3 +282,10 @@ echo "or by deploying a slow version that will not pass the quality gate"
 echo "keptn trigger delivery --project=$PROJECT --service=$SERVICE --image=$IMAGE --tag=$SLOW_VERSION"
 
 # ---------------------------------------------- #
+
+# Cleanup
+
+# Kill the port-forward started in the background
+# If you want to port-forward again, just run
+# kubectl port-forward svc/api-gateway-nginx 5000:80 -nkeptn
+ps aux | grep 'kubectl port-forward svc/api-gateway-nginx 5000' | grep -v 'grep' | awk '{print $2}' | xargs -I{} kill -9 {}
