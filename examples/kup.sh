@@ -250,7 +250,7 @@ helm install datadog --set datadog.apiKey=${DD_API_KEY} datadog/datadog --set da
 
 # Install datadog-service integration for Keptn
 # kubectl apply -f ~/sandbox/datadog-service/deploy/service.yaml
-helm install datadog-service helm --set datadogservice.ddApikey=${DD_API_KEY} --set datadogservice.ddAppKey=${DD_APP_KEY} --set datadog.ddSite=${DD_SITE}
+helm install datadog-service ./helm --set datadogservice.ddApikey=${DD_API_KEY} --set datadogservice.ddAppKey=${DD_APP_KEY} --set datadogservice.ddSite=${DD_SITE}
 
 # Add datadog sli and slo
 keptn add-resource --project="podtatohead" --stage=hardening --service=helloservice --resource=./quickstart/sli.yaml --resourceUri=datadog/sli.yaml
