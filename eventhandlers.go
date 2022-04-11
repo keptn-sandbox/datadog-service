@@ -185,6 +185,42 @@ func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevent
 	return nil
 }
 
+func HandleConfigureMonitoringTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevents.Event, data *keptnv2.ConfigureMonitoringTriggeredEventData) error {
+	var shkeptncontext string
+	_ = incomingEvent.Context.ExtensionAs("shkeptncontext", &shkeptncontext)
+	configureLogger(incomingEvent.Context.GetID(), shkeptncontext)
+
+	logger.Infof("Handling configure-monitoring.triggered Event: %s", incomingEvent.Context.GetID())
+
+	_, err := myKeptn.SendTaskStartedEvent(data, ServiceName)
+	if err != nil {
+		logger.Errorf("err when sending task started the event: %v", err)
+		return err
+	}
+
+	configureMonitoringFinishedEventData := &keptnv2.ConfigureMonitoringFinishedEventData{
+		EventData: keptnv2.EventData{
+			Status:  keptnv2.StatusSucceeded,
+			Result:  keptnv2.ResultPass,
+			Project: data.Project,
+			Stage:   data.Service,
+			Service: data.Service,
+			Message: "Finished configuring monitoring",
+		},
+	}
+
+	logger.Debugf("Configure Monitoring finished event: %v", *configureMonitoringFinishedEventData)
+
+	_, err = myKeptn.SendTaskFinishedEvent(configureMonitoringFinishedEventData, ServiceName)
+	if err != nil {
+		errMsg := fmt.Sprintf("Failed to send task finished CloudEvent (%s), aborting...", err.Error())
+		logger.Error(errMsg)
+		return err
+	}
+
+	return nil
+}
+
 func configureLogger(eventID, keptnContext string) {
 	logger.SetFormatter(&utils.Formatter{
 		Fields: logger.Fields{

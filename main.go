@@ -8,7 +8,9 @@ import (
 
 	cloudevents "github.com/cloudevents/sdk-go/v2" // make sure to use v2 cloudevents here
 	"github.com/kelseyhightower/envconfig"
-	keptn "github.com/keptn/go-utils/pkg/lib/keptn"
+
+	keptnv1 "github.com/keptn/go-utils/pkg/lib"
+	"github.com/keptn/go-utils/pkg/lib/keptn"
 	keptnv2 "github.com/keptn/go-utils/pkg/lib/v0_2_0"
 	logger "github.com/sirupsen/logrus"
 	"github.com/vadasambar/datadog-service/pkg/utils"
@@ -56,6 +58,14 @@ func parseKeptnCloudEventPayload(event cloudevents.Event, data interface{}) erro
 func processKeptnCloudEvent(ctx context.Context, event cloudevents.Event) error {
 	// create keptn handler
 	logger.Info("Initializing Keptn Handler")
+
+	// Convert configure.monitoring event to configure-monitoring event
+	// This is because keptn CLI sends the former and waits for the latter in the code
+	// Issue around this: https://github.com/keptn/keptn/issues/6805
+	if event.Type() == keptnv1.ConfigureMonitoringEventType {
+		event.SetType(keptnv2.ConfigureMonitoringTaskName)
+	}
+
 	myKeptn, err := keptnv2.NewKeptn(&event, keptnOptions)
 	if err != nil {
 		return errors.New("Could not create Keptn Handler: " + err.Error())
@@ -112,9 +122,20 @@ func processKeptnCloudEvent(ctx context.Context, event cloudevents.Event) error 
 	switch event.Type() {
 
 	// -------------------------------------------------------
+	// sh.keptn.event.configure-monitoring (sent by keptnCLI to configure monitoring)
+	case keptnv2.GetTriggeredEventType(keptnv2.ConfigureMonitoringTaskName): // sh.keptn.event.configure-monitoring.triggered
+		logger.Infof("Processing configure-monitoring.Triggered Event")
+
+		eventData := &keptnv2.ConfigureMonitoringTriggeredEventData{}
+		parseKeptnCloudEventPayload(event, eventData)
+		event.SetType(keptnv2.GetTriggeredEventType(keptnv2.ConfigureMonitoringTaskName))
+
+		return HandleConfigureMonitoringTriggeredEvent(myKeptn, event, eventData)
+
+	// -------------------------------------------------------
 	// sh.keptn.event.get-sli (sent by lighthouse-service to fetch SLIs from the sli provider)
 	case keptnv2.GetTriggeredEventType(keptnv2.GetSLITaskName): // sh.keptn.event.get-sli.triggered
-		logger.Infof("Processing Get-SLI.Triggered Event")
+		logger.Infof("Processing get-sli.triggered Event")
 
 		eventData := &keptnv2.GetSLITriggeredEventData{}
 		parseKeptnCloudEventPayload(event, eventData)
