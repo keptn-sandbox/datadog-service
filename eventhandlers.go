@@ -53,7 +53,8 @@ func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevent
 	// The get-sli.started cloud-event is new since Keptn 0.8.0 and is required to be send when the task is started
 	_, err := myKeptn.SendTaskStartedEvent(data, ServiceName)
 	if err != nil {
-		logger.Errorf("err when sending task started the event: %v", err)
+		errMsg := fmt.Sprintf("Failed to send task started CloudEvent (%s), aborting...", err.Error())
+		logger.Error(errMsg)
 		return err
 	}
 
@@ -65,12 +66,6 @@ func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevent
 	end, err := parseUnixTimestamp(data.GetSLI.End)
 	if err != nil {
 		logger.Errorf("unable to parse sli end timestamp: %v", err)
-		return err
-	}
-
-	if err != nil {
-		errMsg := fmt.Sprintf("Failed to send task started CloudEvent (%s), aborting...", err.Error())
-		logger.Error(errMsg)
 		return err
 	}
 
