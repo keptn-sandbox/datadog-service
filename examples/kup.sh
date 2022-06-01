@@ -151,7 +151,7 @@ INGRESS_HOST=localhost
 INGRESS_PORT=5000
 
 # Datadog does not work with the docker driver
-minikube start --cpus='4' --memory='10g' --driver=virtualbox
+# minikube start --cpus='4' --memory='10g' --driver=virtualbox
 
 check_if_keptn_cli_is_installed
 # TODO: This might work without any `--use-case` flag 
@@ -159,9 +159,9 @@ check_if_keptn_cli_is_installed
 # but needs to be verified
 keptn install --use-case=continuous-delivery -y
 
-# check_if_istioctl_cli_is_installed
-# # Install Istio
-# istioctl install -y
+check_if_istioctl_cli_is_installed
+# Install Istio
+istioctl install -y
 
 check_if_kubectl_cli_is_installed
 # Kill an existing port-forward if it exists 
