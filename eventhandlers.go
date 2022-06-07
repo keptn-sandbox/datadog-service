@@ -81,7 +81,6 @@ func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevent
 	// Step 5 - get SLI Config File
 	// Get SLI File from datadog subdirectory of the config repo - to add the file use:
 	//   keptn add-resource --project=PROJECT --stage=STAGE --service=SERVICE --resource=my-sli-config.yaml  --resourceUri=datadog/sli.yaml
-	// sliConfigFileContent, err := myKeptn.GetKeptnResource(sliFile)
 	sliConfig, err := myKeptn.GetSLIConfiguration(data.Project, data.Stage, data.Service, sliFile)
 	logger.Debugf("SLI config: %v", sliConfig)
 
