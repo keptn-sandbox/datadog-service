@@ -41,7 +41,7 @@ spec:
             - containerPort: 80
           envFrom:
           - secretRef:
-              name: "{{ include "datadog-service.fullname" . }}"
+              name: "{{ include "datadog-service.secret" . }}"
           env:
           - name: CONFIGURATION_SERVICE
             value: "http://localhost:8081/configuration-service"
