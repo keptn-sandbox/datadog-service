@@ -1,7 +1,7 @@
 # Sets namespace for all the templates (set to chart release's namespace if empty)
 namespace: keptn
 datadogservice:
-  logLevel: debug
+  logLevel: info
   # Set to DD_API_KEY in the chart's Secret
   ddApikey: ""
   # Set to DD_APP_KEY in the chart's Secret
