@@ -3,6 +3,16 @@ kind: Service
 metadata:
   name: helloservice
   namespace: {{ .Release.Namespace }} 
+  annotations:
+    ad.datadoghq.com/service.check_names: '["http_check"]'
+    ad.datadoghq.com/service.init_configs: '[{}]'
+    ad.datadoghq.com/service.instances: |
+        [
+          {
+            "name": "Hello service",
+            "url": "http://%%host%%"
+          }
+        ]
 spec:
   selector:
     app: helloservice
