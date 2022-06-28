@@ -18,7 +18,7 @@ import (
 
 const (
 	sliFile                        = "datadog/sli.yaml"
-	defaultSleepBeforeAPIInSeconds = 30
+	defaultSleepBeforeAPIInSeconds = 60
 )
 
 // We have to put a min of 30s of sleep for the datadog API to reflect the data correctly
