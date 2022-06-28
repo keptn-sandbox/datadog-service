@@ -5,18 +5,18 @@ comparison:
   include_result_with_score: "pass"
   aggregate_function: avg
 objectives:
-  - sli: system_load
-    displayName: "System Load"
+  - sli: http_response_time
+    displayName: "HTTP response time"
     pass:
       - criteria:
-          - "<0.6"
+          - "<0.004"
     warning:
       - criteria:
-          - ">=0.6"
-          - "<0.7"
+          - ">=0.004"
+          - "<0.007"
     fail:
       - criteria:
-          - ">0.7"
+          - ">=0.007"
 
 total_score:
   pass: "100%"
