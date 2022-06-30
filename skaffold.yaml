@@ -1,13 +1,27 @@
-apiVersion: skaffold/v1beta13
-kind: Config
-build:
-  artifacts:
-    - image: ghcr.io/vadasambar/datadog-service:dev # Todo: Replace this with your image name
-      docker:
-        dockerfile: Dockerfile
-        buildArgs:
-          debugBuild: true
-deploy:
-  kubectl:
-    manifests:
-      - deploy/service.yaml
+# This doesn't work
+# TODO: Fix this file (see if we can use helm chart instead of deply/service.yaml)
+# apiVersion: skaffold/v2beta26
+# kind: Config
+# build:
+#   # local:
+#   #   useDockerCLI: true
+#   #   useBuildkit: true
+#   tagPolicy:
+#     sha256: {}
+#   artifacts:
+#     # - image: k3d-keptn-registry/datadog-service
+#     - image: datadog-service
+#       # sync:
+#       #   infer:
+#       #   - '*.go'
+#       docker:
+#         network: host
+#         # cliFlags:
+#         #   - "--dns 8.8.8.8"
+#         dockerfile: Dockerfile
+#         buildArgs:
+#           debugBuild: true
+# deploy:
+#   kubectl:
+#     manifests:
+#       - deploy/service.yaml
