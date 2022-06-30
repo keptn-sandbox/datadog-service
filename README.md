@@ -19,6 +19,46 @@ Check [the official docs](https://docs.datadoghq.com/account_management/api-app-
 
 Note: Application keys get the same permissions as you. You might want to narrow down the permissions (datadog-service only reads the metrics from the API)
 
+## If you already have a Keptn cluster running
+1. Install datadog
+```bash
+$ export DD_API_KEY="<your-datadog-api-key>" DD_APP_KEY="<your-datadog-app-key>" DD_SITE="datadoghq.com" 
+$ helm install datadog --set datadog.apiKey=${DD_API_KEY} datadog/datadog --set datadog.appKey=${DD_APP_KEY} --set datadog.site=${DD_SITE} --set clusterAgent.enabled=true --set clusterAgent.metricsProvider.enabled=true --set clusterAgent.createPodDisruptionBudget=true --set clusterAgent.replicas=2
+
+```
+2. Install Keptn datadog-service
+```bash
+$ export DD_API_KEY="<your-datadog-api-key>" DD_APP_KEY="<your-datadog-app-key>" DD_SITE="datadoghq.com" 
+# cd datadog-service
+$ helm install datadog-service ./helm --set datadogservice.ddApikey=${DD_API_KEY} --set datadogservice.ddAppKey=${DD_APP_KEY} --set datadogservice.ddSite=${DD_SITE}
+```
+
+3. Add SLI and SLO
+```bash
+$ keptn add-resource --project="<your-project>" --stage="<stage-name>" --service="<service-name>" --resource=/path-to/your/sli-file.yaml --resourceUri=datadog/sli.yaml
+$ keptn add-resource --project="<your-project>"  --stage="<stage-name>" --service="<service-name>" --resource=/path-to/your/slo-file.yaml --resourceUri=slo.yaml
+```
+Example:
+```bash
+$ keptn add-resource --project="podtatohead" --stage="hardening" --service="helloservice" --resource=./quickstart/sli.yaml --resourceUri=datadog/sli.yaml
+$ keptn add-resource --project="podtatohead" --stage="hardening" --service="helloservice" --resource=./quickstart/slo.yaml --resourceUri=slo.yaml
+```
+
+4. Configure Keptn to use datadog SLI provider
+Use keptn CLI version [0.15.0](https://github.com/keptn/keptn/releases/tag/0.15.0) onwards
+```bash
+$ keptn configure monitoring datadog --project <project-name>  --service <service-name>
+```
+
+5. Trigger delivery
+```bash
+$ keptn trigger delivery --project=<project-name> --service=<service-name> --image=<image> --tag=<tag>
+```
+Example:
+```bash
+$ keptn trigger delivery --project=podtatohead --service=helloservice --image=docker.io/jetzlstorfer/helloserver --tag=0.1.1
+```
+Observe the results in the Keptn bridge
 ## Compatibility Matrix
 
 *Please fill in your versions accordingly*
@@ -30,14 +70,14 @@ Note: Application keys get the same permissions as you. You might want to narrow
 
 ## Installation
 
-The *datadog-service* can be installed as a part of [Keptn's uniform](https://keptn.sh).
-
-### Deploy in your Kubernetes cluster
-
-To deploy the current version of the *datadog-service* in your Keptn Kubernetes cluster, apply the [`deploy/service.yaml`](deploy/service.yaml) file:
-
-```console
-kubectl apply -f deploy/service.yaml
+```bash
+$ export DD_API_KEY="<your-datadog-api-key>" DD_APP_KEY="<your-datadog-app-key>" DD_SITE="datadoghq.com" 
+# cd datadog-service
+$ helm install datadog-service ./helm --set datadogservice.ddApikey=${DD_API_KEY} --set datadogservice.ddAppKey=${DD_APP_KEY} --set datadogservice.ddSite=${DD_SITE}
+```
+Tell Keptn to use datadog as SLI provider for your project/service
+```bash
+$ keptn configure monitoring datadog --project <project-name>  --service <service-name>
 ```
 
 This should install the `datadog-service` together with a Keptn `distributor` into the `keptn` namespace, which you can verify using
@@ -46,21 +86,20 @@ This should install the `datadog-service` together with a Keptn `distributor` in
 kubectl -n keptn get deployment datadog-service -o wide
 kubectl -n keptn get pods -l run=datadog-service
 ```
-
 ### Up- or Downgrading
 
 Adapt and use the following command in case you want to up- or downgrade your installed version (specified by the `$VERSION` placeholder):
 
-```console
-kubectl -n keptn set image deployment/datadog-service datadog-service=keptn-sandbox/datadog-service:$VERSION --record
+```bash
+helm upgrade datadog-service ./helm --set datadogservice.ddApikey=${DD_API_KEY} --set datadogservice.ddAppKey=${DD_APP_KEY} --set datadogservice.ddSite=${DD_SITE}
 ```
 
 ### Uninstall
 
-To delete a deployed *datadog-service*, use the file `deploy/*.yaml` files from this repository and delete the Kubernetes resources:
+To delete a deployed *datadog-service* helm chart:
 
-```console
-kubectl delete -f deploy/service.yaml
+```bash
+helm uninstall datadog-service
 ```
 
 ## Development
@@ -84,7 +123,7 @@ If you don't care about the details, your first entrypoint is [eventhandlers.go]
 To better understand all variants of Keptn CloudEvents, please look at the [Keptn Spec](https://github.com/keptn/spec).
  
 If you want to get more insights into processing those CloudEvents or even defining your own CloudEvents in code, please 
- look into [main.go](main.go) (specifically `processKeptnCloudEvent`), [deploy/service.yaml](deploy/service.yaml),
+ look into [main.go](main.go) (specifically `processKeptnCloudEvent`), [helm/templates](helm/templates),
  consult the [Keptn docs](https://keptn.sh/docs/) as well as existing [Keptn Core](https://github.com/keptn/keptn) and
  [Keptn Contrib](https://github.com/keptn-contrib/) services.
 
@@ -95,12 +134,9 @@ If you want to get more insights into processing those CloudEvents or even defin
 * Build the docker image: `docker build . -t ghcr.io/keptn-sandbox/datadog-service:latest` (Note: Ensure that you use the correct DockerHub account/organization)
 * Run the docker image locally: `docker run --rm -it -p 8080:8080 keptn-sandbox/datadog-service:latest`
 * Push the docker image to DockerHub: `docker push ghcr.io/keptn-sandbox/datadog-service:latest` (Note: Ensure that you use the correct DockerHub account/organization)
-* Deploy the service using `kubectl`: `kubectl apply -f deploy/`
-* Delete/undeploy the service using `kubectl`: `kubectl delete -f deploy/`
 * Watch the deployment using `kubectl`: `kubectl -n keptn get deployment datadog-service -o wide`
 * Get logs using `kubectl`: `kubectl -n keptn logs deployment/datadog-service -f`
 * Watch the deployed pods using `kubectl`: `kubectl -n keptn get pods -l run=datadog-service`
-* Deploy the service using [Skaffold](https://skaffold.dev/): `skaffold run --default-repo=your-docker-registry --tail` (Note: Replace `your-docker-registry` with your DockerHub username; also make sure to adapt the image name in [skaffold.yaml](skaffold.yaml))
 
 
 ### Testing Cloud Events
