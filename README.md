@@ -67,6 +67,9 @@ Observe the results in the Keptn bridge
 |:----------------:|:----------------------------------------:|
 |       0.11.4      | ghcr.io/keptn-sandbox/datadog-service:0.1.0 |
 |       0.11.4      | ghcr.io/keptn-sandbox/datadog-service:0.2.0 |
+|       0.15.0      | ghcr.io/keptn-sandbox/datadog-service:0.15.0 |  
+
+datadog-service version will match Keptn version starting from 0.15.0 version of Keptn.
 
 ## Installation
 
@@ -174,7 +177,7 @@ To make use of the built-in automation using GH Actions for releasing a new vers
 * branch away from master to a branch called `release-x.y.z` (where `x.y.z` is your version),
 * write release notes in the [releasenotes/](releasenotes/) folder,
 * check the output of GH Actions builds for the release branch, 
-* verify that your image was built and pushed to DockerHub with the right tags,
+* verify that your image was built and pushed to GHCR with the right tags,
 * update the image tags in [deploy/service.yaml], and
 * test your service against a working Keptn installation.
 
