@@ -1,0 +1,12 @@
+continuous-delivery:
+  enabled: true
+control-plane:
+  apiGatewayNginx:
+    type: ClusterIP
+  bridge:
+    installationType: QUALITY_GATES,CONTINUOUS_OPERATIONS,CONTINUOUS_DELIVERY
+  enabled: true
+  # enable volumePermissions
+  mongo:
+    volumePermissions:
+      enabled: true

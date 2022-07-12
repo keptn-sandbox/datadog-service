@@ -21,8 +21,8 @@
 #    1.11.2
 # 4. keptn
 #    $ keptn version
-#    Keptn CLI and Keptn cluster version are already on the latest version ( 0.11.4 )! 
-#    * Your Keptn CLI version: 0.11.4
+#    ... 
+#    Keptn CLI version: 0.15.0
 #    ...
 # 5. minikube
 #    $ minikube version
@@ -157,7 +157,14 @@ check_if_keptn_cli_is_installed
 # TODO: This might work without any `--use-case` flag 
 # i.e., only control plane with quality gates 
 # but needs to be verified
-keptn install --use-case=continuous-delivery -y
+echo "Adding keptn repo"
+helm repo add keptn https://charts.keptn.sh
+echo "Installing keptn"
+kubectl create ns keptn
+kubectl config set-context --current --namespace=keptn
+helm install keptn keptn/keptn -f examples/keptn-values.yaml --version 0.15.0
+helm install jmeter-service keptn/jmeter-service  --version 0.15.0
+helm install helm-service keptn/helm-service --version 0.15.0
 
 check_if_istioctl_cli_is_installed
 # Install Istio
@@ -222,8 +229,9 @@ print_headline "Adding some load tests"
 keptn add-resource --project=$PROJECT --service=$SERVICE --stage=hardening --resource=./quickstart/jmeter/jmeter.conf.yaml --resourceUri=jmeter/jmeter.conf.yaml
 keptn add-resource --project=$PROJECT --service=$SERVICE --stage=hardening --resource=./quickstart/jmeter/load.jmx --resourceUri=jmeter/load.jmx
 
-# to tell lighthouse to use Datadog if the project is podtatohead
-kubectl apply -f ./quickstart/lighthouse_config.yaml
+# to tell lighthouse to use Datadog for podtatohead project
+keptn configure monitoring datadog --project $PROJECT --service $SERVICE
+
 
 # ---------------------------------------------- #
 
@@ -250,11 +258,11 @@ helm install datadog --set datadog.apiKey=${DD_API_KEY} datadog/datadog --set da
 
 # Install datadog-service integration for Keptn
 # kubectl apply -f ~/sandbox/datadog-service/deploy/service.yaml
-helm install datadog-service ./helm --set datadogservice.ddApikey=${DD_API_KEY} --set datadogservice.ddAppKey=${DD_APP_KEY} --set datadogservice.ddSite=${DD_SITE}
+helm install datadog-service ../helm --set datadogservice.ddApikey=${DD_API_KEY} --set datadogservice.ddAppKey=${DD_APP_KEY} --set datadogservice.ddSite=${DD_SITE}
 
 # Add datadog sli and slo
-keptn add-resource --project="podtatohead" --stage=hardening --service=helloservice --resource=./quickstart/sli.yaml --resourceUri=datadog/sli.yaml
-keptn add-resource --project="podtatohead" --stage=hardening --service="helloservice" --resource=./quickstart/slo.yaml --resourceUri=slo.yaml
+keptn add-resource --project="podtatohead" --stage="hardening" --service="helloservice" --resource=./quickstart/sli.yaml --resourceUri=datadog/sli.yaml
+keptn add-resource --project="podtatohead" --stage="hardening" --service="helloservice" --resource=./quickstart/slo.yaml --resourceUri=slo.yaml
 
 
 # ---------------------------------------------- #
@@ -262,13 +270,13 @@ keptn add-resource --project="podtatohead" --stage=hardening --service="helloser
 # This block of code triggers delivery sequence for the service
 
 print_headline "Trigger the delivery sequence with Keptn"
-echo "keptn trigger delivery --project=$PROJECT --service=$SERVICE --image=$IMAGE --tag=$VERSION"
-keptn trigger delivery --project=$PROJECT --service=$SERVICE --image=$IMAGE --tag=$VERSION
+echo "keptn trigger delivery --project=$PROJECT --service=$SERVICE --image=$IMAGE:$VERSION"
+keptn trigger delivery --project=$PROJECT --service=$SERVICE --image=$IMAGE:$VERSION
 verify_test_step $? "Trigger delivery for helloservice failed"
 
 print_headline "Trigger a new delivery sequence with Keptn"
-echo "keptn trigger delivery --project=$PROJECT --service=$SERVICE --image=$IMAGE --tag=$SLOW_VERSION"
-keptn trigger delivery --project=$PROJECT --service=$SERVICE --image=$IMAGE --tag=$SLOW_VERSION
+echo "keptn trigger delivery --project=$PROJECT --service=$SERVICE --image=$IMAGE:$SLOW_VERSION"
+keptn trigger delivery --project=$PROJECT --service=$SERVICE --image=$IMAGE:$SLOW_VERSION
 verify_test_step $? "Trigger delivery for helloservice failed"
 
 
@@ -277,14 +285,14 @@ echo "Following the multi stage delivery in Keptn Bridge here: http://$INGRESS_H
 
 print_headline "Have a look at the Keptn Bridge and explore the demo project"
 echo "You can run a new delivery sequence with the following command"
-echo "keptn trigger delivery --project=$PROJECT --service=$SERVICE --image=$IMAGE --tag=$VERSION"
+echo "keptn trigger delivery --project=$PROJECT --service=$SERVICE --image=$IMAGE:$VERSION"
 
 print_headline "Multi-stage delviery demo with SLO-based quality gates for Datadog Keptn integration has been successfully set up"
 
 echo "You can run a new delivery sequence with the following command"
-echo "keptn trigger delivery --project=$PROJECT --service=$SERVICE --image=$IMAGE --tag=$VERSION"
+echo "keptn trigger delivery --project=$PROJECT --service=$SERVICE --image=$IMAGE:$VERSION"
 echo "or by deploying a slow version that will not pass the quality gate"
-echo "keptn trigger delivery --project=$PROJECT --service=$SERVICE --image=$IMAGE --tag=$SLOW_VERSION"
+echo "keptn trigger delivery --project=$PROJECT --service=$SERVICE --image=$IMAGE:$SLOW_VERSION"
 
 # ---------------------------------------------- #
 
