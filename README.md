@@ -18,7 +18,7 @@ examples/kup.sh
 ```
 Check [the official docs](https://docs.datadoghq.com/account_management/api-app-keys/) for how to create the Datadog API key and Application key
 
-Note: Application keys get the same permissions as you. You might want to narrow down the permissions (datadog-service only reads the metrics from the API. Check the official docs linked above for more information)
+Note: Application keys get the same permissions as you. You might want to narrow down the permissions (datadog-service only reads metrics from the API. Check the official docs linked above for more information).
 
 ## If you already have a Keptn cluster running
 1. Install datadog
