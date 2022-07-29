@@ -137,7 +137,7 @@ If you want to get more insights into processing those CloudEvents or even defin
 * Build the binary: `go build -ldflags '-linkmode=external' -v -o datadog-service`
 * Run tests: `go test -race -v ./...`
 * Build the docker image: `docker build . -t ghcr.io/keptn-sandbox/datadog-service:latest`
-* Run the docker image locally: `docker run --rm -it -p 8080:8080 keptn-sandbox/datadog-service:latest`
+* Run the docker image locally: `docker run --rm -it -p 8080:8080 ghcr.io/keptn-sandbox/datadog-service:latest`
 * Push the docker image to DockerHub: `docker push ghcr.io/keptn-sandbox/datadog-service:latest`
 * Watch the deployment using `kubectl`: `kubectl -n keptn get deployment datadog-service -o wide`
 * Get logs using `kubectl`: `kubectl -n keptn logs deployment/datadog-service -f`
