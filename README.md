@@ -136,9 +136,9 @@ If you want to get more insights into processing those CloudEvents or even defin
 
 * Build the binary: `go build -ldflags '-linkmode=external' -v -o datadog-service`
 * Run tests: `go test -race -v ./...`
-* Build the docker image: `docker build . -t ghcr.io/keptn-sandbox/datadog-service:latest` (Note: Ensure that you use the correct DockerHub account/organization)
+* Build the docker image: `docker build . -t ghcr.io/keptn-sandbox/datadog-service:latest`
 * Run the docker image locally: `docker run --rm -it -p 8080:8080 keptn-sandbox/datadog-service:latest`
-* Push the docker image to DockerHub: `docker push ghcr.io/keptn-sandbox/datadog-service:latest` (Note: Ensure that you use the correct DockerHub account/organization)
+* Push the docker image to DockerHub: `docker push ghcr.io/keptn-sandbox/datadog-service:latest`
 * Watch the deployment using `kubectl`: `kubectl -n keptn get deployment datadog-service -o wide`
 * Get logs using `kubectl`: `kubectl -n keptn logs deployment/datadog-service -f`
 * Watch the deployed pods using `kubectl`: `kubectl -n keptn get pods -l run=datadog-service`
@@ -161,14 +161,6 @@ You can find the details in [.github/workflows/reviewdog.yml](.github/workflows/
 This repo has automated unit tests for pull requests. 
 
 You can find the details in [.github/workflows/tests.yml](.github/workflows/tests.yml).
-
-### GH Actions/Workflow: Build Docker Images
-
-This repo uses GH Actions and Workflows to test the code and automatically build docker images.
-
-Docker Images are automatically pushed based on the configuration done in [.ci_env](.ci_env) and the two [GitHub Secrets](https://github.com/keptn-sandbox/datadog-service/settings/secrets/actions)
-* `REGISTRY_USER` - your DockerHub username
-* `REGISTRY_PASSWORD` - a DockerHub [access token](https://hub.docker.com/settings/security) (alternatively, your DockerHub password)
 
 ## How to release a new version of this service
 
