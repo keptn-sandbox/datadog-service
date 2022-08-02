@@ -35,15 +35,15 @@ func initializeTestObjects(eventFileName string) (*keptnv2.Keptn, *cloudevents.E
 		EventSender: &fake.EventSender{},
 	}
 	keptnOptions.UseLocalFileSystem = true
-	myKeptn, err := keptnv2.NewKeptn(incomingEvent, keptnOptions)
+	ddKeptn, err := keptnv2.NewKeptn(incomingEvent, keptnOptions)
 
-	return myKeptn, incomingEvent, err
+	return ddKeptn, incomingEvent, err
 }
 
 // Tests the HandleGetSliTriggeredEvent Handler
 // TODO: Add your test-code
 func TestHandleGetSliTriggered(t *testing.T) {
-	myKeptn, incomingEvent, err := initializeTestObjects("test-events/get-sli.triggered.json")
+	ddKeptn, incomingEvent, err := initializeTestObjects("test-events/get-sli.triggered.json")
 	if err != nil {
 		t.Error(err)
 		return
@@ -55,12 +55,12 @@ func TestHandleGetSliTriggered(t *testing.T) {
 		t.Errorf("Error getting keptn event data")
 	}
 
-	err = HandleGetSliTriggeredEvent(myKeptn, *incomingEvent, specificEvent)
+	err = HandleGetSliTriggeredEvent(ddKeptn, *incomingEvent, specificEvent)
 	if err != nil {
 		t.Errorf("Error: " + err.Error())
 	}
 
-	gotEvents := len(myKeptn.EventSender.(*fake.EventSender).SentEvents)
+	gotEvents := len(ddKeptn.EventSender.(*fake.EventSender).SentEvents)
 
 	// Verify that HandleGetSliTriggeredEvent has sent 2 cloudevents
 	if gotEvents != 2 {
@@ -68,12 +68,12 @@ func TestHandleGetSliTriggered(t *testing.T) {
 	}
 
 	// Verify that the first CE sent is a .started event
-	if keptnv2.GetStartedEventType(keptnv2.GetSLITaskName) != myKeptn.EventSender.(*fake.EventSender).SentEvents[0].Type() {
+	if keptnv2.GetStartedEventType(keptnv2.GetSLITaskName) != ddKeptn.EventSender.(*fake.EventSender).SentEvents[0].Type() {
 		t.Errorf("Expected a get-sli.started event type")
 	}
 
 	// Verify that the second CE sent is a .finished event
-	if keptnv2.GetFinishedEventType(keptnv2.GetSLITaskName) != myKeptn.EventSender.(*fake.EventSender).SentEvents[1].Type() {
+	if keptnv2.GetFinishedEventType(keptnv2.GetSLITaskName) != ddKeptn.EventSender.(*fake.EventSender).SentEvents[1].Type() {
 		t.Errorf("Expected a get-sli.finished event type")
 	}
 }

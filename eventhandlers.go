@@ -35,7 +35,7 @@ func init() {
 }
 
 // HandleGetSliTriggeredEvent handles get-sli.triggered events if SLIProvider == datadog
-func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevents.Event, data *keptnv2.GetSLITriggeredEventData) error {
+func HandleGetSliTriggeredEvent(ddKeptn *keptnv2.Keptn, incomingEvent cloudevents.Event, data *keptnv2.GetSLITriggeredEventData) error {
 	var shkeptncontext string
 	_ = incomingEvent.Context.ExtensionAs("shkeptncontext", &shkeptncontext)
 	configureLogger(incomingEvent.Context.GetID(), shkeptncontext)
@@ -51,7 +51,7 @@ func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevent
 
 	// Step 2 - Send out a get-sli.started CloudEvent
 	// The get-sli.started cloud-event is new since Keptn 0.8.0 and is required to be send when the task is started
-	_, err := myKeptn.SendTaskStartedEvent(data, ServiceName)
+	_, err := ddKeptn.SendTaskStartedEvent(data, ServiceName)
 	if err != nil {
 		errMsg := fmt.Sprintf("Failed to send task started CloudEvent (%s), aborting...", err.Error())
 		logger.Error(errMsg)
@@ -81,7 +81,7 @@ func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevent
 	// Step 5 - get SLI Config File
 	// Get SLI File from datadog subdirectory of the config repo - to add the file use:
 	//   keptn add-resource --project=PROJECT --stage=STAGE --service=SERVICE --resource=my-sli-config.yaml  --resourceUri=datadog/sli.yaml
-	sliConfig, err := myKeptn.GetSLIConfiguration(data.Project, data.Stage, data.Service, sliFile)
+	sliConfig, err := ddKeptn.GetSLIConfiguration(data.Project, data.Stage, data.Service, sliFile)
 	logger.Debugf("SLI config: %v", sliConfig)
 
 	// FYI you do not need to "fail" if sli.yaml is missing, you can also assume smart defaults like we do
@@ -92,7 +92,7 @@ func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevent
 		logger.Error(errMsg)
 		// send a get-sli.finished event with status=error and result=failed back to Keptn
 
-		_, err = myKeptn.SendTaskFinishedEvent(&keptnv2.EventData{
+		_, err = ddKeptn.SendTaskFinishedEvent(&keptnv2.EventData{
 			Status: keptnv2.StatusErrored,
 			Result: keptnv2.ResultFailed,
 			Labels: labels,
@@ -168,7 +168,7 @@ func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevent
 
 	logger.Debugf("SLI finished event: %v", *getSliFinishedEventData)
 
-	_, err = myKeptn.SendTaskFinishedEvent(getSliFinishedEventData, ServiceName)
+	_, err = ddKeptn.SendTaskFinishedEvent(getSliFinishedEventData, ServiceName)
 
 	if err != nil {
 		errMsg := fmt.Sprintf("Failed to send task finished CloudEvent (%s), aborting...", err.Error())
@@ -179,14 +179,14 @@ func HandleGetSliTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevent
 	return nil
 }
 
-func HandleConfigureMonitoringTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEvent cloudevents.Event, data *keptnv2.ConfigureMonitoringTriggeredEventData) error {
+func HandleConfigureMonitoringTriggeredEvent(ddKeptn *keptnv2.Keptn, incomingEvent cloudevents.Event, data *keptnv2.ConfigureMonitoringTriggeredEventData) error {
 	var shkeptncontext string
 	_ = incomingEvent.Context.ExtensionAs("shkeptncontext", &shkeptncontext)
 	configureLogger(incomingEvent.Context.GetID(), shkeptncontext)
 
 	logger.Infof("Handling configure-monitoring.triggered Event: %s", incomingEvent.Context.GetID())
 
-	_, err := myKeptn.SendTaskStartedEvent(data, ServiceName)
+	_, err := ddKeptn.SendTaskStartedEvent(data, ServiceName)
 	if err != nil {
 		logger.Errorf("err when sending task started the event: %v", err)
 		return err
@@ -205,7 +205,7 @@ func HandleConfigureMonitoringTriggeredEvent(myKeptn *keptnv2.Keptn, incomingEve
 
 	logger.Debugf("Configure Monitoring finished event: %v", *configureMonitoringFinishedEventData)
 
-	_, err = myKeptn.SendTaskFinishedEvent(configureMonitoringFinishedEventData, ServiceName)
+	_, err = ddKeptn.SendTaskFinishedEvent(configureMonitoringFinishedEventData, ServiceName)
 	if err != nil {
 		errMsg := fmt.Sprintf("Failed to send task finished CloudEvent (%s), aborting...", err.Error())
 		logger.Error(errMsg)

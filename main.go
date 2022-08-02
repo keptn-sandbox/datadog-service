@@ -66,12 +66,12 @@ func processKeptnCloudEvent(ctx context.Context, event cloudevents.Event) error 
 		event.SetType(keptnv2.ConfigureMonitoringTaskName)
 	}
 
-	myKeptn, err := keptnv2.NewKeptn(&event, keptnOptions)
+	ddKeptn, err := keptnv2.NewKeptn(&event, keptnOptions)
 	if err != nil {
 		return errors.New("Could not create Keptn Handler: " + err.Error())
 	}
 
-	logger.Infof("gotEvent(%s): %s - %s", event.Type(), myKeptn.KeptnContext, event.Context.GetID())
+	logger.Infof("gotEvent(%s): %s - %s", event.Type(), ddKeptn.KeptnContext, event.Context.GetID())
 
 	if err != nil {
 		logger.Errorf("failed to parse incoming cloudevent: %v", err)
@@ -130,7 +130,7 @@ func processKeptnCloudEvent(ctx context.Context, event cloudevents.Event) error 
 		parseKeptnCloudEventPayload(event, eventData)
 		event.SetType(keptnv2.GetTriggeredEventType(keptnv2.ConfigureMonitoringTaskName))
 
-		return HandleConfigureMonitoringTriggeredEvent(myKeptn, event, eventData)
+		return HandleConfigureMonitoringTriggeredEvent(ddKeptn, event, eventData)
 
 	// -------------------------------------------------------
 	// sh.keptn.event.get-sli (sent by lighthouse-service to fetch SLIs from the sli provider)
@@ -140,7 +140,7 @@ func processKeptnCloudEvent(ctx context.Context, event cloudevents.Event) error 
 		eventData := &keptnv2.GetSLITriggeredEventData{}
 		parseKeptnCloudEventPayload(event, eventData)
 
-		return HandleGetSliTriggeredEvent(myKeptn, event, eventData)
+		return HandleGetSliTriggeredEvent(ddKeptn, event, eventData)
 
 	}
 	// Unknown Event -> Throw Error!
