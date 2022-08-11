@@ -54,12 +54,16 @@ jobs:
       # Prepare minikube + Keptn environment
       - name: Install and start minikube
         run: |
-          wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
-          wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | sudo apt-key add -
-          echo "deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian $(lsb_release -cs) contrib" | sudo tee -a /etc/apt/sources.list.d/virtualbox.list
-          sudo apt-get update
-          sudo apt-get install virtualbox-6.1 -y 
-          minikube start --driver=virtualbox
+          # wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
+          # wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | sudo apt-key add -
+          # echo "deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian $(lsb_release -cs) contrib" | sudo tee -a /etc/apt/sources.list.d/virtualbox.list
+          # sudo apt-get update
+          # sudo apt-get install virtualbox-6.1 -y
+          
+          curl -LO https://storage.googleapis.com/minikube/releases/v1.24.0/minikube-linux-amd64
+          sudo install minikube-linux-amd64 /usr/local/bin/minikube
+          # /usr/local/bin/minikube start --driver=virtualbox
+          /usr/local/bin/minikube start
 
       - name: Wait for minikube to become ready
         timeout-minutes: 1
