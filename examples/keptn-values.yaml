@@ -1,12 +1,51 @@
-continuous-delivery:
-  enabled: true
+# continuous-delivery:
+#   enabled: true
+# control-plane:
+#   apiGatewayNginx:
+#     type: ClusterIP
+#   bridge:
+#     installationType: QUALITY_GATES,CONTINUOUS_OPERATIONS,CONTINUOUS_DELIVERY
+#   enabled: true
+#   # enable volumePermissions
+#   mongo:
+#     volumePermissions:
+#       enabled: true
+
+
+# Keptn 0.17 and newer
+apiGatewayNginx:
+  type: LoadBalancer
+features:
+  automaticProvisioning:
+    serviceURL: http://keptn-gitea-provisioner-service.default
+# Keptn 0.16 compatibility
 control-plane:
   apiGatewayNginx:
-    type: ClusterIP
-  bridge:
-    installationType: QUALITY_GATES,CONTINUOUS_OPERATIONS,CONTINUOUS_DELIVERY
-  enabled: true
-  # enable volumePermissions
-  mongo:
-    volumePermissions:
-      enabled: true
+    type: LoadBalancer
+  features:
+    automaticProvisioningURL: http://keptn-gitea-provisioner-service.default
+# Not required for tests
+statisticsService:
+  enabled: false
+approvalService:
+  enabled: false
+webhookService:
+  enabled: false
+remediationService:
+  enabled: false
+# Trim down memory and cpu required
+mongo:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 50Mi
+nats:
+  nats:
+    resources:
+      requests:
+        cpu: 50m
+        memoery: 50mi
+    jetstream:
+      memStorage:
+        enabled: false
+                    
