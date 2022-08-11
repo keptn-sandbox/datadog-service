@@ -1,0 +1,11 @@
+---
+spec_version: '1.0'
+indicators:
+  # http_response_time is the name of the indicator (you can set it to whatever name you like)
+  # `avg:network.http.response_time{*} by {$SERVICE}.rollup(avg, $DURATION)` is the query sent to Datadog
+  # $SERVICE is the name of the service/url which is hit during the testing phase. datadog-service replaces it with the
+  # right value (so that you don't have to do anything)
+  # $DURATION is the difference between start and end time of the testing phase. Since the user won't know this 
+  # at the time of writing the query, datadog-service provides $DURATION as a placeholder which is replaced later 
+  # by datadog-service with the appropriate value 
+  http_response_time: avg:network.http.response_time{*} by {$SERVICE}.rollup(avg, $DURATION)

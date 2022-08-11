@@ -1,0 +1,23 @@
+---
+spec_version: '0.1.0'
+comparison:
+  compare_with: "single_result"
+  include_result_with_score: "pass"
+  aggregate_function: avg
+objectives:
+  - sli: http_response_time
+    displayName: "HTTP response time"
+    pass:
+      - criteria:
+          - "<0.02" # 20 milliseconds
+    warning:
+      - criteria:
+          - ">=0.2"
+          - "<0.3"
+    fail:
+      - criteria:
+          - ">=0.3"
+
+total_score:
+  pass: "100%"
+  warning: "50%"
