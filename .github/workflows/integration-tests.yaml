@@ -63,7 +63,7 @@ jobs:
           curl -LO https://storage.googleapis.com/minikube/releases/v1.24.0/minikube-linux-amd64
           sudo install minikube-linux-amd64 /usr/local/bin/minikube
           # /usr/local/bin/minikube start --driver=virtualbox
-          /usr/local/bin/minikube start --cpus=2 --memory=8GB
+          /usr/local/bin/minikube start --cpus=2 --memory=5GB
 
       # - name: Wait for minikube to become ready
       #   timeout-minutes: 1
@@ -139,15 +139,26 @@ jobs:
                 type: LoadBalancer
               features:
                 automaticProvisioningURL: http://keptn-gitea-provisioner-service.default
-            # Not required for tests
-            statisticsService:
-              enabled: false
-            approvalService:
-              enabled: false
-            webhookService:
-              enabled: false
-            remediationService:
-              enabled: false
+            # # Not required for tests
+            # statisticsService:
+            #   enabled: false
+            # approvalService:
+            #   enabled: false
+            # webhookService:
+            #   enabled: false
+            # remediationService:
+            #   enabled: false
+            # # Trim down memory and cpu required
+            # mongo:
+            #   resources:
+            #     requests:
+            #       cpu: 50m
+            #       memory: 50Mi
+            # nats:
+            #   nats:
+            #     resources:
+            #       requests:
+
           KUBECONFIG: ${{ env.KUBECONFIG }}
 
       - name: Test connection to keptn
