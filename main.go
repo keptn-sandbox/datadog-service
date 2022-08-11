@@ -123,7 +123,7 @@ func processKeptnCloudEvent(ctx context.Context, event cloudevents.Event) error 
 
 	// -------------------------------------------------------
 	// sh.keptn.event.configure-monitoring (sent by keptnCLI to configure monitoring)
-	case keptnv2.GetTriggeredEventType(keptnv2.ConfigureMonitoringTaskName): // sh.keptn.event.configure-monitoring.triggered
+	case keptnv2.ConfigureMonitoringTaskName: // sh.keptn.event.configure-monitoring.triggered
 		logger.Infof("Processing configure-monitoring.Triggered Event")
 
 		eventData := &keptnv2.ConfigureMonitoringTriggeredEventData{}
