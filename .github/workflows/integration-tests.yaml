@@ -65,18 +65,18 @@ jobs:
           # /usr/local/bin/minikube start --driver=virtualbox
           /usr/local/bin/minikube start
 
-      - name: Wait for minikube to become ready
-        timeout-minutes: 1
-        run: |
-          # uncomment the line below for debugging
-          # set -x
-          minikReady=$(kubectl get node $(hostname) -ogo-template --template="{{ range .status.conditions }} {{- if eq .type \"Ready\" }}{{ .status }} {{- end }} {{- end }}" || echo "")
-          while [ "$minikReady" != "True" ]; do
-          echo "Minikube is not ready yet, sleep awhile to let things settle"
-          sleep 5
-          minikReady=$(kubectl get node $(hostname) -ogo-template --template="{{ range .status.conditions }} {{- if eq .type \"Ready\" }}{{ .status }} {{- end }} {{- end }}" || echo "")
-          done;
-          echo "Minikube ready!!!"
+      # - name: Wait for minikube to become ready
+      #   timeout-minutes: 1
+      #   run: |
+      #     # uncomment the line below for debugging
+      #     # set -x
+      #     minikReady=$(kubectl get node $(hostname) -ogo-template --template="{{ range .status.conditions }} {{- if eq .type \"Ready\" }}{{ .status }} {{- end }} {{- end }}" || echo "")
+      #     while [ "$minikReady" != "True" ]; do
+      #     echo "Minikube is not ready yet, sleep awhile to let things settle"
+      #     sleep 5
+      #     minikReady=$(kubectl get node $(hostname) -ogo-template --template="{{ range .status.conditions }} {{- if eq .type \"Ready\" }}{{ .status }} {{- end }} {{- end }}" || echo "")
+      #     done;
+      #     echo "Minikube ready!!!"
 
       - name: Generate Gitea credentials
         id: gitea_credentials
