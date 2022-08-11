@@ -20,7 +20,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        keptn-version: ["0.14.2", "0.15.1", "0.16.0", "0.17.0"] # https://github.com/keptn/keptn/releases
+        # keptn-version: ["0.14.2", "0.15.1", "0.16.0", "0.17.0"] # https://github.com/keptn/keptn/releases
+        keptn-version: ["0.15.1"] # https://github.com/keptn/keptn/releases
         prometheus-version: ["15.10.1"]
         datadog-version: ["2.37.0"]
     env:
@@ -49,17 +50,6 @@ jobs:
       - name: Install gotestsum
         shell: bash
         run: go install gotest.tools/gotestsum@latest
-
-      # Download artifacts from last CI run
-      - name: Download artifacts
-        uses: dawidd6/action-download-artifact@v2.21.1
-        id: download_artifacts_push
-        with:
-          # Download last successful artifact from a CI build
-          github_token: ${{secrets.GITHUB_TOKEN}}
-          workflow: CI.yml
-          branch: ${{ env.BRANCH }}
-          path: ./dist
 
       # Prepare minikube + Keptn environment
       - name: Install and start minikube
@@ -190,14 +180,6 @@ jobs:
           helm repo add datadog https://helm.datadoghq.com
           helm install datadog --set datadog.apiKey=${DD_API_KEY} datadog/datadog --set datadog.appKey=${DD_APP_KEY} --set datadog.site=${DD_SITE} --set clusterAgent.enabled=true --set clusterAgent.metricsProvider.enabled=true --set clusterAgent.createPodDisruptionBudget=true --set clusterAgent.replicas=2
 
-      - name: Install prometheus-service
-        run: |
-          ls -lah ./dist/helm-charts/
-          helm upgrade --install \
-            prometheus-service ./dist/helm-charts/prometheus-service-*.tgz \
-            -n keptn \
-            --wait
-
       - name: Install datadog-service
         run: |
           helm install datadog-service ./helm --set datadogservice.ddApikey=${DD_API_KEY} --set datadogservice.ddAppKey=${DD_APP_KEY} --set datadogservice.ddSite=${DD_SITE}
@@ -233,7 +215,6 @@ jobs:
           kubectl get all -n keptn -o json > k8s_debug/k8s_keptn_objects.json
           kubectl get configmaps,deployments,pods,networkpolicy,serviceaccounts,role,rolebindings,events -n ${JES_NAMESPACE} -o json > k8s_debug/k8s_jes_objects.json
           kubectl logs -n keptn -l app.kubernetes.io/instance=keptn --prefix=true --previous=false --all-containers --tail=-1 > k8s_debug/k8s_keptn_logs.txt || true
-          kubectl logs -n keptn -l app.kubernetes.io/instance=prometheus-service --prefix=true --previous=false --all-containers --tail=-1 > k8s_debug/k8s_prometheus-service_logs.txt || true
           kubectl logs -n ${JES_NAMESPACE} deployment/job-executor-service --prefix=true --previous=false --all-containers --tail=-1 > k8s_debug/k8s_jes_logs.txt || true
           kubectl logs deployment/keptn-gitea-provisioner-service --prefix=true --previous=false --all-containers --tial=-1 > k8s_debug/k8s_gitea_provisioner_logs.txt || true
           kubectl get statefulsets,configmaps,pods,networkpolicy,serviceaccounts,role,rolebindings,events,services -n ${GITEA_NAMESPACE} -o json > k8s_debug/k8s_objects_gitea.json
