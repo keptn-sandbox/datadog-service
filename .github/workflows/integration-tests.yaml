@@ -59,7 +59,7 @@ jobs:
           echo "deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian $(lsb_release -cs) contrib" | sudo tee -a /etc/apt/sources.list.d/virtualbox.list
           sudo apt-get update
           sudo apt-get install virtualbox-6.1 -y 
-          minikube start --cpus='4' --memory='10g' --driver=virtualbox
+          minikube start --driver=virtualbox
 
       - name: Wait for minikube to become ready
         timeout-minutes: 1
@@ -135,6 +135,15 @@ jobs:
                 type: LoadBalancer
               features:
                 automaticProvisioningURL: http://keptn-gitea-provisioner-service.default
+            # Not required for tests
+            statisticsService:
+              enabled: false
+            approvalService:
+              enabled: false
+            webhookService:
+              enabled: false
+            remediationService:
+              enabled: false
           KUBECONFIG: ${{ env.KUBECONFIG }}
 
       - name: Test connection to keptn
