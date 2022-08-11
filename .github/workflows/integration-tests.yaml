@@ -119,14 +119,14 @@ jobs:
             --set gitea.admin.username=${GITEA_ADMIN_USERNAME} \
             --set gitea.admin.password=${GITEA_ADMIN_PASSWORD} \
             --wait
-            
+
       - name: Debugging with ssh
         uses: lhotari/action-upterm@v1
 
       - name: Install Keptn
         id: install_keptn
         uses: keptn-sandbox/action-install-keptn@v2.0.0
-        timeout-minutes: 5
+        timeout-minutes: 10
         with:
           KEPTN_VERSION: ${{ matrix.keptn-version }}
           HELM_VALUES: |
