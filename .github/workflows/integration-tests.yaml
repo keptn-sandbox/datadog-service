@@ -63,7 +63,7 @@ jobs:
           curl -LO https://storage.googleapis.com/minikube/releases/v1.24.0/minikube-linux-amd64
           sudo install minikube-linux-amd64 /usr/local/bin/minikube
           # /usr/local/bin/minikube start --driver=virtualbox
-          /usr/local/bin/minikube start
+          /usr/local/bin/minikube start --cpus=4 --memory=8GB
 
       # - name: Wait for minikube to become ready
       #   timeout-minutes: 1
@@ -155,45 +155,45 @@ jobs:
           curl -X GET "${{ steps.install_keptn.outputs.KEPTN_API_URL }}/v1/metadata" -H  "accept: application/json" -H  "x-token: ${{ steps.install_keptn.outputs.KEPTN_API_TOKEN }}"
 
       # Install job executor from downloaded helm chart
-      - name: Install Job-executor-service
-        env:
-          KEPTN_API_PROTOCOL: http
-          KEPTN_API_TOKEN: ${{ steps.install_keptn.outputs.KEPTN_API_TOKEN }}
-          KEPTN_ENDPOINT: ${{ steps.install_keptn.outputs.KEPTN_HTTP_ENDPOINT }}
-          TASK_SUBSCRIPTION: "sh.keptn.event.deployment.triggered\\,sh.keptn.event.test.triggered"
-        run: |
-          helm upgrade --install \
-            --create-namespace -n ${JES_NAMESPACE} \
-            job-executor-service \
-            "https://github.com/keptn-contrib/job-executor-service/releases/download/${JES_VERSION}/job-executor-service-${JES_VERSION}.tgz" \
-            --set remoteControlPlane.autoDetect.enabled="false" \
-            --set remoteControlPlane.topicSubscription=${TASK_SUBSCRIPTION} \
-            --set remoteControlPlane.api.token=${KEPTN_API_TOKEN} \
-            --set remoteControlPlane.api.hostname=${KEPTN_ENDPOINT} \
-            --set remoteControlPlane.api.protocol=${KEPTN_API_PROTOCOL} \
-            --wait
+      # - name: Install Job-executor-service
+      #   env:
+      #     KEPTN_API_PROTOCOL: http
+      #     KEPTN_API_TOKEN: ${{ steps.install_keptn.outputs.KEPTN_API_TOKEN }}
+      #     KEPTN_ENDPOINT: ${{ steps.install_keptn.outputs.KEPTN_HTTP_ENDPOINT }}
+      #     TASK_SUBSCRIPTION: "sh.keptn.event.deployment.triggered\\,sh.keptn.event.test.triggered"
+      #   run: |
+      #     helm upgrade --install \
+      #       --create-namespace -n ${JES_NAMESPACE} \
+      #       job-executor-service \
+      #       "https://github.com/keptn-contrib/job-executor-service/releases/download/${JES_VERSION}/job-executor-service-${JES_VERSION}.tgz" \
+      #       --set remoteControlPlane.autoDetect.enabled="false" \
+      #       --set remoteControlPlane.topicSubscription=${TASK_SUBSCRIPTION} \
+      #       --set remoteControlPlane.api.token=${KEPTN_API_TOKEN} \
+      #       --set remoteControlPlane.api.hostname=${KEPTN_ENDPOINT} \
+      #       --set remoteControlPlane.api.protocol=${KEPTN_API_PROTOCOL} \
+      #       --wait
           
-          kubectl apply \
-            -f test/data/helm-serviceAccount.yaml \
-            -f test/data/helm-clusterRole.yaml \
-            -f test/data/helm-clusterRoleBinding.yaml
+      #     kubectl apply \
+      #       -f test/data/helm-serviceAccount.yaml \
+      #       -f test/data/helm-clusterRole.yaml \
+      #       -f test/data/helm-clusterRoleBinding.yaml
 
-      - name: Install prometheus
-        env:
-          PROMETHEUS_VERSION: ${{ matrix.prometheus-version }}
-        run: |
-          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-          helm install prometheus prometheus-community/prometheus \
-            --namespace ${PROMETHEUS_NAMESPACE} --create-namespace \
-            --version ${PROMETHEUS_VERSION}\
-            --wait
+      # - name: Install prometheus
+      #   env:
+      #     PROMETHEUS_VERSION: ${{ matrix.prometheus-version }}
+      #   run: |
+      #     helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+      #     helm install prometheus prometheus-community/prometheus \
+      #       --namespace ${PROMETHEUS_NAMESPACE} --create-namespace \
+      #       --version ${PROMETHEUS_VERSION}\
+      #       --wait
 
       - name: Install datadog
         env:
           PROMETHEUS_VERSION: ${{ matrix.datadog-version }}
         run: |
           helm repo add datadog https://helm.datadoghq.com
-          helm install datadog --set datadog.apiKey=${DD_API_KEY} datadog/datadog --set datadog.appKey=${DD_APP_KEY} --set datadog.site=${DD_SITE} --set clusterAgent.enabled=true --set clusterAgent.metricsProvider.enabled=true --set clusterAgent.createPodDisruptionBudget=true --set clusterAgent.replicas=2
+          helm install datadog --set datadog.apiKey=${DD_API_KEY} datadog/datadog --set datadog.appKey=${DD_APP_KEY} --set datadog.site=${DD_SITE} --set clusterAgent.enabled=true --set clusterAgent.metricsProvider.enabled=true --set clusterAgent.createPodDisruptionBudget=true --set clusterAgent.replicas=1
 
       - name: Install datadog-service
         run: |
