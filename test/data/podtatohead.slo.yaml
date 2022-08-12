@@ -9,10 +9,10 @@ objectives:
     displayName: "HTTP response time"
     pass:
       - criteria:
-          - "<0.1" # seconds
+          - "<0.25" # seconds
     fail:
       - criteria:
-          - ">=0.1"
+          - ">=0.25"
 
 total_score:
   pass: "100%"
