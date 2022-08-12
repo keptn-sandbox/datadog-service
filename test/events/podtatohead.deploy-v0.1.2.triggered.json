@@ -10,7 +10,7 @@
       "deploymentstrategy": "direct"
     },
     "labels": {
-      "version": "v0.1.1"
+      "version": "v0.1.2"
     },
     "project": "e2e-project",
     "service": "podtatoserver",
