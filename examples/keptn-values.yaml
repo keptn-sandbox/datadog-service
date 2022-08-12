@@ -24,28 +24,3 @@ control-plane:
     type: LoadBalancer
   features:
     automaticProvisioningURL: http://keptn-gitea-provisioner-service.default
-# Not required for tests
-statisticsService:
-  enabled: false
-approvalService:
-  enabled: false
-webhookService:
-  enabled: false
-remediationService:
-  enabled: false
-# Trim down memory and cpu required
-mongo:
-  resources:
-    requests:
-      cpu: 50m
-      memory: 50Mi
-nats:
-  nats:
-    resources:
-      requests:
-        cpu: 50m
-        memoery: 50mi
-    jetstream:
-      memStorage:
-        enabled: false
-                    
