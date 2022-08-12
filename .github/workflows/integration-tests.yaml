@@ -150,40 +150,6 @@ jobs:
         run: |
           curl -X GET "${{ steps.install_keptn.outputs.KEPTN_API_URL }}/v1/metadata" -H  "accept: application/json" -H  "x-token: ${{ steps.install_keptn.outputs.KEPTN_API_TOKEN }}"
 
-      # Install job executor from downloaded helm chart
-      # - name: Install Job-executor-service
-      #   env:
-      #     KEPTN_API_PROTOCOL: http
-      #     KEPTN_API_TOKEN: ${{ steps.install_keptn.outputs.KEPTN_API_TOKEN }}
-      #     KEPTN_ENDPOINT: ${{ steps.install_keptn.outputs.KEPTN_HTTP_ENDPOINT }}
-      #     TASK_SUBSCRIPTION: "sh.keptn.event.deployment.triggered\\,sh.keptn.event.test.triggered"
-      #   run: |
-      #     helm upgrade --install \
-      #       --create-namespace -n ${JES_NAMESPACE} \
-      #       job-executor-service \
-      #       "https://github.com/keptn-contrib/job-executor-service/releases/download/${JES_VERSION}/job-executor-service-${JES_VERSION}.tgz" \
-      #       --set remoteControlPlane.autoDetect.enabled="false" \
-      #       --set remoteControlPlane.topicSubscription=${TASK_SUBSCRIPTION} \
-      #       --set remoteControlPlane.api.token=${KEPTN_API_TOKEN} \
-      #       --set remoteControlPlane.api.hostname=${KEPTN_ENDPOINT} \
-      #       --set remoteControlPlane.api.protocol=${KEPTN_API_PROTOCOL} \
-      #       --wait
-          
-      #     kubectl apply \
-      #       -f test/data/helm-serviceAccount.yaml \
-      #       -f test/data/helm-clusterRole.yaml \
-      #       -f test/data/helm-clusterRoleBinding.yaml
-
-      # - name: Install prometheus
-      #   env:
-      #     PROMETHEUS_VERSION: ${{ matrix.prometheus-version }}
-      #   run: |
-      #     helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-      #     helm install prometheus prometheus-community/prometheus \
-      #       --namespace ${PROMETHEUS_NAMESPACE} --create-namespace \
-      #       --version ${PROMETHEUS_VERSION}\
-      #       --wait
-
       - name: Install datadog
         env:
           PROMETHEUS_VERSION: ${{ matrix.datadog-version }}
@@ -224,14 +190,15 @@ jobs:
           kubectl describe nodes > k8s_debug/k8s_describe_nodes.txt
           kubectl cluster-info dump > k8s_debug/k8s_cluster_info_dump.txt
           kubectl get all -n keptn -o json > k8s_debug/k8s_keptn_objects.json
-          kubectl get configmaps,deployments,pods,networkpolicy,serviceaccounts,role,rolebindings,events -n ${JES_NAMESPACE} -o json > k8s_debug/k8s_jes_objects.json
           kubectl logs -n keptn -l app.kubernetes.io/instance=keptn --prefix=true --previous=false --all-containers --tail=-1 > k8s_debug/k8s_keptn_logs.txt || true
-          kubectl logs -n ${JES_NAMESPACE} deployment/job-executor-service --prefix=true --previous=false --all-containers --tail=-1 > k8s_debug/k8s_jes_logs.txt || true
           kubectl logs deployment/keptn-gitea-provisioner-service --prefix=true --previous=false --all-containers --tial=-1 > k8s_debug/k8s_gitea_provisioner_logs.txt || true
           kubectl get statefulsets,configmaps,pods,networkpolicy,serviceaccounts,role,rolebindings,events,services -n ${GITEA_NAMESPACE} -o json > k8s_debug/k8s_objects_gitea.json
           kubectl logs statefulsets/gitea --prefix=true --previous=false --all-containers -n ${GITEA_NAMESPACE} --tail=-1 > k8s_debug/k8s_logs_gitea.txt || true
           kubectl get daemonsets,configmaps,pods,serviceaccounts,role,rolebindings,events,services -n ${PROMETHEUS_NAMESPACE} -o json > k8s_debug/k8s_objects_prometheus.json
-          kubectl logs deployment/prometheus-alertmanager --prefix=true --previous=false --all-containers -n ${PROMETHEUS_NAMESPACE} --tail=-1 > k8s_debug/k8s_logs_prometheus-alertmanager.txt || true
+          kubectl logs deployment/datadog-cluster-agent --prefix=true --previous=false --all-containers --tial=-1 > k8s_debug/k8s_datadog-cluster-agent_logs.txt || true
+          kubectl logs deployment/datadog_kube_state_metrics --prefix=true --previous=false --all-containers --tial=-1 > k8s_debug/k8s_datadog_kube_state_metrics_logs.txt || true
+          kubectl logs daemonset/datadog --prefix=true --previous=false --all-containers --tial=-1 > k8s_debug/k8s_datadog_logs.txt || true
+          kubectl logs deployment/datadog-service --prefix=true --previous=false --all-containers --tail=-1 > k8s_debug/k8s_datadog_service_logs.txt || true
 
       # Upload the k8s debug archive, so we can use it for investigating
       - name: Upload k8s debug archive
