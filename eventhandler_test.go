@@ -43,7 +43,7 @@ func initializeTestObjects(eventFileName string) (*keptnv2.Keptn, *cloudevents.E
 // Tests the HandleGetSliTriggeredEvent Handler
 // TODO: Add your test-code
 func TestHandleGetSliTriggered(t *testing.T) {
-	ddKeptn, incomingEvent, err := initializeTestObjects("test-events/get-sli.triggered.json")
+	ddKeptn, incomingEvent, err := initializeTestObjects("test/events/get-sli.triggered.json")
 	if err != nil {
 		t.Error(err)
 		return
