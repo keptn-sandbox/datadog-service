@@ -21,7 +21,7 @@ const (
 	defaultSleepBeforeAPIInSeconds = 60
 )
 
-// We have to put a min of 30s of sleep for the datadog API to reflect the data correctly
+// We have to put a min of 60s of sleep for the datadog API to reflect the data correctly
 // More info: https://github.com/keptn-sandbox/datadog-service/issues/8
 var sleepBeforeAPIInSeconds int
 
@@ -29,7 +29,7 @@ func init() {
 	var err error
 	sleepBeforeAPIInSeconds, err = strconv.Atoi(strings.TrimSpace(os.Getenv("SLEEP_BEFORE_API_IN_SECONDS")))
 	if err != nil || sleepBeforeAPIInSeconds < defaultSleepBeforeAPIInSeconds {
-		logger.Infof("defaulting SLEEP_BEFORE_API_IN_SECONDS to 30s because it was set to '%v' which is less than the min allowed value of 30s", sleepBeforeAPIInSeconds)
+		logger.Infof("defaulting SLEEP_BEFORE_API_IN_SECONDS to 60s because it was set to '%v' which is less than the min allowed value of 60s", sleepBeforeAPIInSeconds)
 		sleepBeforeAPIInSeconds = defaultSleepBeforeAPIInSeconds
 	}
 }
