@@ -8,6 +8,9 @@ datadogservice:
   ddAppKey: ""
   # Set to DD_SITE in the chart's Secret
   ddSite: ""
+  # Make datadog-service wait for 120 seconds before querying the Datadog API
+  # so that the API reflects correct metric data
+  sleepBeforeAPIInSeconds: "120"
   # Secret containing datadog's DD_API_KEY
   # DD_APP_KEY, DD_API_KEY and DD_SITE (key names should be an exact match)
   existingSecret: "" # If you want to use existing Secret in the cluster
