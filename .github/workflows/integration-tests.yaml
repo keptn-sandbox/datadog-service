@@ -64,7 +64,7 @@ jobs:
           sudo install minikube-linux-amd64 /usr/local/bin/minikube
           # /usr/local/bin/minikube start --driver=virtualbox
           /usr/local/bin/minikube start --cpus=2 --memory=5GB
-          /usr/local/bin/minikube minikube addons enable metrics-server
+          minikube tunnel &> /dev/null &
 
       # - name: Wait for minikube to become ready
       #   timeout-minutes: 1
