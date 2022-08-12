@@ -29,8 +29,6 @@ func TestPodtatoheadEvaluation(t *testing.T) {
 		ResourceName string
 	}{
 		{FilePath: "../data/podtatoserver-0.1.0.tgz", ResourceName: fmt.Sprintf("helm/%s.tgz", testEnv.EventData.Service)},
-		{FilePath: "../data/locust.basic.py", ResourceName: "locust/basic.py"},
-		{FilePath: "../data/locust.conf", ResourceName: "locust/locust.conf"},
 		{FilePath: "../data/podtatohead.sli.yaml", ResourceName: "datadog/sli.yaml"},
 		{FilePath: "../data/podtatohead.slo.yaml", ResourceName: "slo.yaml"},
 	}
@@ -87,7 +85,7 @@ func TestPodtatoheadEvaluation(t *testing.T) {
 		// Checking a .started event is received from the evaluation process
 		requireWaitForEvent(t,
 			testEnv.API,
-			5*time.Minute,
+			15*time.Minute,
 			1*time.Second,
 			keptnContext,
 			"sh.keptn.event.get-sli.started",
@@ -99,7 +97,7 @@ func TestPodtatoheadEvaluation(t *testing.T) {
 
 		requireWaitForEvent(t,
 			testEnv.API,
-			5*time.Minute,
+			15*time.Minute,
 			1*time.Second,
 			keptnContext,
 			"sh.keptn.event.get-sli.finished",
@@ -114,7 +112,7 @@ func TestPodtatoheadEvaluation(t *testing.T) {
 
 		requireWaitForEvent(t,
 			testEnv.API,
-			5*time.Minute,
+			15*time.Minute,
 			1*time.Second,
 			keptnContext,
 			"sh.keptn.event.evaluation.finished",
@@ -139,7 +137,7 @@ func TestPodtatoheadEvaluation(t *testing.T) {
 		// Checking a .started event is received from the evaluation process
 		requireWaitForEvent(t,
 			testEnv.API,
-			5*time.Minute,
+			15*time.Minute,
 			1*time.Second,
 			keptnContext,
 			"sh.keptn.event.get-sli.started",
@@ -151,7 +149,7 @@ func TestPodtatoheadEvaluation(t *testing.T) {
 
 		requireWaitForEvent(t,
 			testEnv.API,
-			5*time.Minute,
+			15*time.Minute,
 			1*time.Second,
 			keptnContext,
 			"sh.keptn.event.get-sli.finished",
@@ -166,7 +164,7 @@ func TestPodtatoheadEvaluation(t *testing.T) {
 
 		requireWaitForEvent(t,
 			testEnv.API,
-			1*time.Minute,
+			15*time.Minute,
 			1*time.Second,
 			keptnContext,
 			"sh.keptn.event.evaluation.finished",

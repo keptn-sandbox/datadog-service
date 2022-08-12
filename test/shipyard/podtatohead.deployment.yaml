@@ -13,7 +13,15 @@ spec:
         - name: "deploy"
           tasks:
             - name: "deployment"
-            - name: "test"
             - name: "evaluation"
+              # 1. give some time for the service to be up and running
+              # so that metrics starts showing correct results
+              # 2. prevents problems where two versions (v1: fast, v2: slow)
+              # are present. v1 is going down and v2 is coming up
+              # during this time period, v1 can still be receiving requests
+              # and v2 won't be ready. This leads to distortion in the metrics data
+              triggeredAfter: "3m"
               properties:
-                timeframe: "1m"
+                # prevents issues where metrics data is 0 because the duration
+                # is too short
+                timeframe: "2m"
