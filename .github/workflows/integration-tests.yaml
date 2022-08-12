@@ -207,7 +207,7 @@ jobs:
           KEPTN_ENDPOINT: ${{ steps.install_keptn.outputs.KEPTN_API_URL }}
           KEPTN_API_TOKEN: ${{ steps.install_keptn.outputs.KEPTN_API_TOKEN }}
         run: |
-          gotestsum --format testname --jsonfile $TEST_REPORT_FILENAME ./test/e2e/...
+          gotestsum --format testname --jsonfile $TEST_REPORT_FILENAME -- -timeout=120m ./test/e2e/...
 
       # Upload the report files, so we can use them in later jobs
       - name: Upload test report as an artifact
