@@ -33,7 +33,7 @@ jobs:
       JES_NAMESPACE: keptn-jes
       GITEA_ADMIN_USERNAME: GiteaAdmin
       GITEA_NAMESPACE: gitea
-      KUBECONFIG: "${{ github.workspace }} /.kube/config"
+      KUBECONFIG: "${{ github.workspace }}/.kube/config"
       TEST_REPORT_FILENAME: test-report-${{ github.run_id }}-keptn-${{ matrix.keptn-version }}-datadog-${{ matrix.datadog-version }}.json
     steps:
       # Checkout code for the integrations tests in test/e2e
