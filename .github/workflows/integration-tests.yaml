@@ -152,20 +152,18 @@ jobs:
 
       - name: Install datadog
         env:
-          with:
-            DD_API_KEY: ${{ secrets.DD_API_KEY }}
-            DD_APP_KEY: ${{ secrets.DD_APP_KEY }}
-            DD_SITE: ${{ secrets.DD_SITE }}
+          DD_API_KEY: ${{ secrets.DD_API_KEY }}
+          DD_APP_KEY: ${{ secrets.DD_APP_KEY }}
+          DD_SITE: ${{ secrets.DD_SITE }}
         run: |
           helm repo add datadog https://helm.datadoghq.com
           helm install datadog --set datadog.apiKey=${DD_API_KEY} datadog/datadog --set datadog.appKey=${DD_APP_KEY} --set datadog.site=${DD_SITE} --set clusterAgent.enabled=true --set clusterAgent.metricsProvider.enabled=true --set clusterAgent.createPodDisruptionBudget=true --set clusterAgent.replicas=1
 
       - name: Install datadog-service
         env:
-          with:
-            DD_API_KEY: ${{ secrets.DD_API_KEY }}
-            DD_APP_KEY: ${{ secrets.DD_APP_KEY }}
-            DD_SITE: ${{ secrets.DD_SITE }}
+          DD_API_KEY: ${{ secrets.DD_API_KEY }}
+          DD_APP_KEY: ${{ secrets.DD_APP_KEY }}
+          DD_SITE: ${{ secrets.DD_SITE }}
         run: |
           helm install datadog-service ./helm --set datadogservice.ddApikey=${DD_API_KEY} --set datadogservice.ddAppKey=${DD_APP_KEY} --set datadogservice.ddSite=${DD_SITE}
 
