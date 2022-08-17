@@ -24,7 +24,7 @@ jobs:
         keptn-version: ["0.15.1"] # https://github.com/keptn/keptn/releases
         datadog-version: ["2.37.0"]
     env:
-      GO_VERSION: 1.17
+      GO_VERSION: 1.16
       GOPROXY: "https://proxy.golang.org"
       GO111MODULE: "on"
       BRANCH: ${{ github.head_ref || github.ref_name }}
