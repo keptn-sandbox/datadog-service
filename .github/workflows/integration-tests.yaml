@@ -171,14 +171,17 @@ jobs:
 
 
       # Uncomment this for debugging (`cd && touch continue` to continue execution of the workflow) 
-      - name: Debugging with ssh
-        uses: lhotari/action-upterm@v1
+      # - name: Debugging with ssh
+      #   uses: lhotari/action-upterm@v1
 
       - name: Run Integration tests
         env:
           KEPTN_ENDPOINT: ${{ steps.install_keptn.outputs.KEPTN_API_URL }}
           KEPTN_API_TOKEN: ${{ steps.install_keptn.outputs.KEPTN_API_TOKEN }}
         run: |
+          # create a new kube config (it is not available here sometimes)
+          # TODO: investigate why this is the case
+          minikube update-context
           gotestsum --format testname --jsonfile $TEST_REPORT_FILENAME -- -timeout=120m ./test/e2e/...
 
       # Upload the report files, so we can use them in later jobs
