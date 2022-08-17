@@ -22,7 +22,6 @@ jobs:
       matrix:
         # keptn-version: ["0.14.2", "0.15.1", "0.16.0", "0.17.0"] # https://github.com/keptn/keptn/releases
         keptn-version: ["0.15.1"] # https://github.com/keptn/keptn/releases
-        prometheus-version: ["15.10.1"]
         datadog-version: ["2.37.0"]
     env:
       GO_VERSION: 1.17
@@ -32,11 +31,10 @@ jobs:
       ENABLE_E2E_TEST: true
       JES_VERSION: "0.2.3"
       JES_NAMESPACE: keptn-jes
-      PROMETHEUS_NAMESPACE: monitoring
       GITEA_ADMIN_USERNAME: GiteaAdmin
       GITEA_NAMESPACE: gitea
       KUBECONFIG: ~/.kube/config
-      TEST_REPORT_FILENAME: test-report-${{ github.run_id }}-keptn-${{ matrix.keptn-version }}-prometheus-${{ matrix.prometheus-version }}.json
+      TEST_REPORT_FILENAME: test-report-${{ github.run_id }}-keptn-${{ matrix.keptn-version }}-datadog-${{ matrix.datadog-version }}.json
     steps:
       # Checkout code for the integrations tests in test/e2e
       - name: Check out code.
@@ -200,7 +198,6 @@ jobs:
           kubectl logs deployment/keptn-gitea-provisioner-service --prefix=true --previous=false --all-containers --tial=-1 > k8s_debug/k8s_gitea_provisioner_logs.txt || true
           kubectl get statefulsets,configmaps,pods,networkpolicy,serviceaccounts,role,rolebindings,events,services -n ${GITEA_NAMESPACE} -o json > k8s_debug/k8s_objects_gitea.json
           kubectl logs statefulsets/gitea --prefix=true --previous=false --all-containers -n ${GITEA_NAMESPACE} --tail=-1 > k8s_debug/k8s_logs_gitea.txt || true
-          kubectl get daemonsets,configmaps,pods,serviceaccounts,role,rolebindings,events,services -n ${PROMETHEUS_NAMESPACE} -o json > k8s_debug/k8s_objects_prometheus.json
           kubectl logs deployment/datadog-cluster-agent --prefix=true --previous=false --all-containers --tial=-1 > k8s_debug/k8s_datadog-cluster-agent_logs.txt || true
           kubectl logs deployment/datadog_kube_state_metrics --prefix=true --previous=false --all-containers --tial=-1 > k8s_debug/k8s_datadog_kube_state_metrics_logs.txt || true
           kubectl logs daemonset/datadog --prefix=true --previous=false --all-containers --tial=-1 > k8s_debug/k8s_datadog_logs.txt || true
@@ -211,7 +208,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: k8s-debug-archive-keptn-${{ matrix.keptn-version }}-prometheus-${{ matrix.prometheus-version }}
+          name: k8s-debug-archive-keptn-${{ matrix.keptn-version }}-datadog-${{ matrix.datadog-version }}
           path: k8s_debug/
 
   publish_final_test_report:
