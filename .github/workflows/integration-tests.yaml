@@ -119,10 +119,6 @@ jobs:
             --set gitea.admin.password=${GITEA_ADMIN_PASSWORD} \
             --wait
 
-      # Uncomment this for debugging (`cd && touch continue` to continue execution of the workflow) 
-      # - name: Debugging with ssh
-      #   uses: lhotari/action-upterm@v1
-
       - name: Install Keptn
         id: install_keptn
         uses: keptn-sandbox/action-install-keptn@v2.0.0
@@ -172,6 +168,11 @@ jobs:
         run: |
           echo "Failed to run integration tests!"
           echo '{"Test": "TestGitHub Pipeline", "Action": "fail"}' >> $TEST_REPORT_FILENAME
+
+
+      # Uncomment this for debugging (`cd && touch continue` to continue execution of the workflow) 
+      - name: Debugging with ssh
+        uses: lhotari/action-upterm@v1
 
       - name: Run Integration tests
         env:
