@@ -119,8 +119,9 @@ jobs:
             --set gitea.admin.password=${GITEA_ADMIN_PASSWORD} \
             --wait
 
-      - name: Debugging with ssh
-        uses: lhotari/action-upterm@v1
+      # Uncomment this for debugging (`cd && touch continue` to continue execution of the workflow) 
+      # - name: Debugging with ssh
+      #   uses: lhotari/action-upterm@v1
 
       - name: Install Keptn
         id: install_keptn
