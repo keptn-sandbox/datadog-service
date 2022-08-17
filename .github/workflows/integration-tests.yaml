@@ -33,21 +33,21 @@ jobs:
       JES_NAMESPACE: keptn-jes
       GITEA_ADMIN_USERNAME: GiteaAdmin
       GITEA_NAMESPACE: gitea
-      KUBECONFIG: "$HOME/.kube/config"
+      KUBECONFIG: "/etc/.kube/config"
       TEST_REPORT_FILENAME: test-report-${{ github.run_id }}-keptn-${{ matrix.keptn-version }}-datadog-${{ matrix.datadog-version }}.json
     steps:
       # Checkout code for the integrations tests in test/e2e
       - name: Check out code.
         uses: actions/checkout@v3.0.2
 
-      # - name: Setup Go
-      #   uses: actions/setup-go@v3.2.0
-      #   with:
-      #     go-version-file: "go.mod"
+      - name: Setup Go
+        uses: actions/setup-go@v3.2.0
+        with:
+          go-version-file: "go.mod"
 
-      # - name: Install gotestsum
-      #   shell: bash
-      #   run: go install gotest.tools/gotestsum@latest
+      - name: Install gotestsum
+        shell: bash
+        run: go install gotest.tools/gotestsum@latest
 
       # Prepare minikube + Keptn environment
       - name: Install and start minikube
@@ -77,51 +77,47 @@ jobs:
       #     done;
       #     echo "Minikube ready!!!"
 
-      # - name: Generate Gitea credentials
-      #   id: gitea_credentials
-      #   run: |
-      #     password=$(date +%s | sha256sum | base64 | head -c 32)
-      #     echo "::add-mask::$password"
-      #     echo "::set-output name=GITEA_ADMIN_PASSWORD::$password"
+      - name: Generate Gitea credentials
+        id: gitea_credentials
+        run: |
+          password=$(date +%s | sha256sum | base64 | head -c 32)
+          echo "::add-mask::$password"
+          echo "::set-output name=GITEA_ADMIN_PASSWORD::$password"
 
-      # - name: Install Gitea
-      #   id: gitea
-      #   env:
-      #     GITEA_ADMIN_PASSWORD: ${{ steps.gitea_credentials.outputs.GITEA_ADMIN_PASSWORD }}
-      #   run: |
-      #     export GITEA_ENDPOINT="http://gitea-http.${GITEA_NAMESPACE}:3000"
+      - name: Install Gitea
+        id: gitea
+        env:
+          GITEA_ADMIN_PASSWORD: ${{ steps.gitea_credentials.outputs.GITEA_ADMIN_PASSWORD }}
+        run: |
+          export GITEA_ENDPOINT="http://gitea-http.${GITEA_NAMESPACE}:3000"
           
-      #     helm repo add gitea-charts https://dl.gitea.io/charts/
-      #     helm repo update
-      #     helm install -n ${GITEA_NAMESPACE} gitea gitea-charts/gitea \
-      #       --create-namespace \
-      #       --set memcached.enabled=false \
-      #       --set postgresql.enabled=false \
-      #       --set gitea.config.database.DB_TYPE=sqlite3 \
-      #       --set gitea.admin.username=${GITEA_ADMIN_USERNAME} \
-      #       --set gitea.admin.password=${GITEA_ADMIN_PASSWORD} \
-      #       --set gitea.config.server.OFFLINE_MODE=true \
-      #       --set gitea.config.server.ROOT_URL=${GITEA_ENDPOINT}/ \
-      #       --wait
+          helm repo add gitea-charts https://dl.gitea.io/charts/
+          helm repo update
+          helm install -n ${GITEA_NAMESPACE} gitea gitea-charts/gitea \
+            --create-namespace \
+            --set memcached.enabled=false \
+            --set postgresql.enabled=false \
+            --set gitea.config.database.DB_TYPE=sqlite3 \
+            --set gitea.admin.username=${GITEA_ADMIN_USERNAME} \
+            --set gitea.admin.password=${GITEA_ADMIN_PASSWORD} \
+            --set gitea.config.server.OFFLINE_MODE=true \
+            --set gitea.config.server.ROOT_URL=${GITEA_ENDPOINT}/ \
+            --wait
           
-      #     # Export Gitea connection details
-      #     echo "::set-output name=GITEA_ENDPOINT::${GITEA_ENDPOINT}"
+          # Export Gitea connection details
+          echo "::set-output name=GITEA_ENDPOINT::${GITEA_ENDPOINT}"
 
-      # - name: Install gitea provisioner-service
-      #   env:
-      #     GITEA_ADMIN_PASSWORD: ${{ steps.gitea_credentials.outputs.GITEA_ADMIN_PASSWORD }}
-      #     GITEA_ENDPOINT: ${{ steps.gitea.outputs.GITEA_ENDPOINT }}
-      #   run: |
-      #     helm install keptn-gitea-provisioner-service https://github.com/keptn-sandbox/keptn-gitea-provisioner-service/releases/download/0.1.0/keptn-gitea-provisioner-service-0.1.0.tgz \
-      #       --set gitea.endpoint=${GITEA_ENDPOINT} \
-      #       --set gitea.admin.create=true \
-      #       --set gitea.admin.username=${GITEA_ADMIN_USERNAME} \
-      #       --set gitea.admin.password=${GITEA_ADMIN_PASSWORD} \
-      #       --wait
-
-      - name: Debugging with ssh
-        uses: lhotari/action-upterm@v1
-
+      - name: Install gitea provisioner-service
+        env:
+          GITEA_ADMIN_PASSWORD: ${{ steps.gitea_credentials.outputs.GITEA_ADMIN_PASSWORD }}
+          GITEA_ENDPOINT: ${{ steps.gitea.outputs.GITEA_ENDPOINT }}
+        run: |
+          helm install keptn-gitea-provisioner-service https://github.com/keptn-sandbox/keptn-gitea-provisioner-service/releases/download/0.1.0/keptn-gitea-provisioner-service-0.1.0.tgz \
+            --set gitea.endpoint=${GITEA_ENDPOINT} \
+            --set gitea.admin.create=true \
+            --set gitea.admin.username=${GITEA_ADMIN_USERNAME} \
+            --set gitea.admin.password=${GITEA_ADMIN_PASSWORD} \
+            --wait
 
       - name: Install Keptn
         id: install_keptn
@@ -149,76 +145,76 @@ jobs:
         run: |
           curl -X GET "${{ steps.install_keptn.outputs.KEPTN_API_URL }}/v1/metadata" -H  "accept: application/json" -H  "x-token: ${{ steps.install_keptn.outputs.KEPTN_API_TOKEN }}"
 
-      # - name: Install datadog
-      #   env:
-      #     DD_API_KEY: ${{ secrets.DD_API_KEY }}
-      #     DD_APP_KEY: ${{ secrets.DD_APP_KEY }}
-      #     DD_SITE: ${{ secrets.DD_SITE }}
-      #   run: |
-      #     helm repo add datadog https://helm.datadoghq.com
-      #     helm install datadog --set datadog.apiKey=${DD_API_KEY} datadog/datadog --set datadog.appKey=${DD_APP_KEY} --set datadog.site=${DD_SITE} --set clusterAgent.enabled=true --set clusterAgent.metricsProvider.enabled=true --set clusterAgent.createPodDisruptionBudget=true --set clusterAgent.replicas=1
+      - name: Install datadog
+        env:
+          DD_API_KEY: ${{ secrets.DD_API_KEY }}
+          DD_APP_KEY: ${{ secrets.DD_APP_KEY }}
+          DD_SITE: ${{ secrets.DD_SITE }}
+        run: |
+          helm repo add datadog https://helm.datadoghq.com
+          helm install datadog --set datadog.apiKey=${DD_API_KEY} datadog/datadog --set datadog.appKey=${DD_APP_KEY} --set datadog.site=${DD_SITE} --set clusterAgent.enabled=true --set clusterAgent.metricsProvider.enabled=true --set clusterAgent.createPodDisruptionBudget=true --set clusterAgent.replicas=1
 
-      # - name: Install datadog-service
-      #   env:
-      #     DD_API_KEY: ${{ secrets.DD_API_KEY }}
-      #     DD_APP_KEY: ${{ secrets.DD_APP_KEY }}
-      #     DD_SITE: ${{ secrets.DD_SITE }}
-      #   run: |
-      #     helm install datadog-service ./helm --set datadogservice.ddApikey=${DD_API_KEY} --set datadogservice.ddAppKey=${DD_APP_KEY} --set datadogservice.ddSite=${DD_SITE}
+      - name: Install datadog-service
+        env:
+          DD_API_KEY: ${{ secrets.DD_API_KEY }}
+          DD_APP_KEY: ${{ secrets.DD_APP_KEY }}
+          DD_SITE: ${{ secrets.DD_SITE }}
+        run: |
+          helm install datadog-service ./helm --set datadogservice.ddApikey=${DD_API_KEY} --set datadogservice.ddAppKey=${DD_APP_KEY} --set datadogservice.ddSite=${DD_SITE}
 
-      # # If we failed any previous step we might have a problem and not reporting anything for the version
-      # - name: Create pipeline failure report
-      #   if: failure()
-      #   run: |
-      #     echo "Failed to run integration tests!"
-      #     echo '{"Test": "TestGitHub Pipeline", "Action": "fail"}' >> $TEST_REPORT_FILENAME
+      # If we failed any previous step we might have a problem and not reporting anything for the version
+      - name: Create pipeline failure report
+        if: failure()
+        run: |
+          echo "Failed to run integration tests!"
+          echo '{"Test": "TestGitHub Pipeline", "Action": "fail"}' >> $TEST_REPORT_FILENAME
 
 
       # # Uncomment this for debugging (`cd && touch continue` to continue execution of the workflow) 
       # - name: Debugging with ssh
       #   uses: lhotari/action-upterm@v1
 
-      # - name: Run Integration tests
-      #   env:
-      #     KEPTN_ENDPOINT: ${{ steps.install_keptn.outputs.KEPTN_API_URL }}
-      #     KEPTN_API_TOKEN: ${{ steps.install_keptn.outputs.KEPTN_API_TOKEN }}
-      #   run: |
-      #     # create a new kube config (it is not available here sometimes)
-      #     # TODO: investigate why this is the case
-      #     minikube update-context
-      #     gotestsum --format testname --jsonfile $TEST_REPORT_FILENAME -- -timeout=120m ./test/e2e/...
+      - name: Run Integration tests
+        env:
+          KEPTN_ENDPOINT: ${{ steps.install_keptn.outputs.KEPTN_API_URL }}
+          KEPTN_API_TOKEN: ${{ steps.install_keptn.outputs.KEPTN_API_TOKEN }}
+        run: |
+          # create a new kube config (it is not available here sometimes)
+          # TODO: investigate why this is the case
+          minikube update-context
+          gotestsum --format testname --jsonfile $TEST_REPORT_FILENAME -- -timeout=120m ./test/e2e/...
 
-      # # Upload the report files, so we can use them in later jobs
-      # - name: Upload test report as an artifact
-      #   if: always()
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: test-report
-      #     path: test-report-*.json
+      # Upload the report files, so we can use them in later jobs
+      - name: Upload test report as an artifact
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-report
+          path: test-report-*.json
 
-      # - name: Dump k8s debug info
-      #   if: always()
-      #   run: |
-      #     mkdir k8s_debug
-      #     kubectl describe nodes > k8s_debug/k8s_describe_nodes.txt
-      #     kubectl cluster-info dump > k8s_debug/k8s_cluster_info_dump.txt
-      #     kubectl get all -n keptn -o json > k8s_debug/k8s_keptn_objects.json
-      #     kubectl logs -n keptn -l app.kubernetes.io/instance=keptn --prefix=true --previous=false --all-containers --tail=-1 > k8s_debug/k8s_keptn_logs.txt || true
-      #     kubectl logs deployment/keptn-gitea-provisioner-service --prefix=true --previous=false --all-containers --tial=-1 > k8s_debug/k8s_gitea_provisioner_logs.txt || true
-      #     kubectl get statefulsets,configmaps,pods,networkpolicy,serviceaccounts,role,rolebindings,events,services -n ${GITEA_NAMESPACE} -o json > k8s_debug/k8s_objects_gitea.json
-      #     kubectl logs statefulsets/gitea --prefix=true --previous=false --all-containers -n ${GITEA_NAMESPACE} --tail=-1 > k8s_debug/k8s_logs_gitea.txt || true
-      #     kubectl logs deployment/datadog-cluster-agent --prefix=true --previous=false --all-containers --tial=-1 > k8s_debug/k8s_datadog-cluster-agent_logs.txt || true
-      #     kubectl logs deployment/datadog_kube_state_metrics --prefix=true --previous=false --all-containers --tial=-1 > k8s_debug/k8s_datadog_kube_state_metrics_logs.txt || true
-      #     kubectl logs daemonset/datadog --prefix=true --previous=false --all-containers --tial=-1 > k8s_debug/k8s_datadog_logs.txt || true
-      #     kubectl logs deployment/datadog-service --prefix=true --previous=false --all-containers --tail=-1 > k8s_debug/k8s_datadog_service_logs.txt || true
+      - name: Dump k8s debug info
+        if: always()
+        run: |
+          mkdir k8s_debug
+          kubectl describe nodes > k8s_debug/k8s_describe_nodes.txt
+          kubectl cluster-info dump > k8s_debug/k8s_cluster_info_dump.txt
+          kubectl get all -n keptn -o json > k8s_debug/k8s_keptn_objects.json
+          kubectl logs -n keptn -l app.kubernetes.io/instance=keptn --prefix=true --previous=false --all-containers --tail=-1 > k8s_debug/k8s_keptn_logs.txt || true
+          kubectl logs deployment/keptn-gitea-provisioner-service --prefix=true --previous=false --all-containers --tial=-1 > k8s_debug/k8s_gitea_provisioner_logs.txt || true
+          kubectl get statefulsets,configmaps,pods,networkpolicy,serviceaccounts,role,rolebindings,events,services -n ${GITEA_NAMESPACE} -o json > k8s_debug/k8s_objects_gitea.json
+          kubectl logs statefulsets/gitea --prefix=true --previous=false --all-containers -n ${GITEA_NAMESPACE} --tail=-1 > k8s_debug/k8s_logs_gitea.txt || true
+          kubectl logs deployment/datadog-cluster-agent --prefix=true --previous=false --all-containers --tial=-1 > k8s_debug/k8s_datadog-cluster-agent_logs.txt || true
+          kubectl logs deployment/datadog_kube_state_metrics --prefix=true --previous=false --all-containers --tial=-1 > k8s_debug/k8s_datadog_kube_state_metrics_logs.txt || true
+          kubectl logs daemonset/datadog --prefix=true --previous=false --all-containers --tial=-1 > k8s_debug/k8s_datadog_logs.txt || true
+          kubectl logs deployment/datadog-service --prefix=true --previous=false --all-containers --tail=-1 > k8s_debug/k8s_datadog_service_logs.txt || true
 
-      # # Upload the k8s debug archive, so we can use it for investigating
-      # - name: Upload k8s debug archive
-      #   if: always()
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: k8s-debug-archive-keptn-${{ matrix.keptn-version }}-datadog-${{ matrix.datadog-version }}
-      #     path: k8s_debug/
+      # Upload the k8s debug archive, so we can use it for investigating
+      - name: Upload k8s debug archive
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: k8s-debug-archive-keptn-${{ matrix.keptn-version }}-datadog-${{ matrix.datadog-version }}
+          path: k8s_debug/
 
   publish_final_test_report:
     name: Finalize tests reports
