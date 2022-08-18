@@ -152,7 +152,7 @@ jobs:
           DD_SITE: ${{ secrets.DD_SITE }}
         run: |
           helm repo add datadog https://helm.datadoghq.com
-          helm install datadog --set datadog.apiKey=${DD_API_KEY} datadog/datadog --set datadog.appKey=${DD_APP_KEY} --set datadog.site=${DD_SITE} --set clusterAgent.enabled=true --set clusterAgent.metricsProvider.enabled=true --set clusterAgent.createPodDisruptionBudget=true --set clusterAgent.replicas=1
+          helm install datadog --set datadog.apiKey=${DD_API_KEY} datadog/datadog --set datadog.appKey=${DD_APP_KEY} --set datadog.site=${DD_SITE} --set clusterAgent.enabled=true --set clusterAgent.metricsProvider.enabled=true --set clusterAgent.createPodDisruptionBudget=true --set clusterAgent.replicas=1 -nkeptn
 
       - name: Install datadog-service
         env:
@@ -160,7 +160,7 @@ jobs:
           DD_APP_KEY: ${{ secrets.DD_APP_KEY }}
           DD_SITE: ${{ secrets.DD_SITE }}
         run: |
-          helm install datadog-service ./helm --set datadogservice.ddApikey=${DD_API_KEY} --set datadogservice.ddAppKey=${DD_APP_KEY} --set datadogservice.ddSite=${DD_SITE}
+          helm install datadog-service ./helm --set datadogservice.ddApikey=${DD_API_KEY} --set datadogservice.ddAppKey=${DD_APP_KEY} --set datadogservice.ddSite=${DD_SITE} -nkeptn
 
       # If we failed any previous step we might have a problem and not reporting anything for the version
       - name: Create pipeline failure report
@@ -171,8 +171,8 @@ jobs:
 
 
       # # Uncomment this for debugging (`cd && touch continue` to continue execution of the workflow) 
-      # - name: Debugging with ssh
-      #   uses: lhotari/action-upterm@v1
+      - name: Debugging with ssh
+        uses: lhotari/action-upterm@v1
 
       - name: Run Integration tests
         env:
@@ -203,10 +203,10 @@ jobs:
           kubectl logs deployment/keptn-gitea-provisioner-service --prefix=true --previous=false --all-containers --tial=-1 > k8s_debug/k8s_gitea_provisioner_logs.txt || true
           kubectl get statefulsets,configmaps,pods,networkpolicy,serviceaccounts,role,rolebindings,events,services -n ${GITEA_NAMESPACE} -o json > k8s_debug/k8s_objects_gitea.json
           kubectl logs statefulsets/gitea --prefix=true --previous=false --all-containers -n ${GITEA_NAMESPACE} --tail=-1 > k8s_debug/k8s_logs_gitea.txt || true
-          kubectl logs deployment/datadog-cluster-agent --prefix=true --previous=false --all-containers --tial=-1 > k8s_debug/k8s_datadog-cluster-agent_logs.txt || true
-          kubectl logs deployment/datadog_kube_state_metrics --prefix=true --previous=false --all-containers --tial=-1 > k8s_debug/k8s_datadog_kube_state_metrics_logs.txt || true
-          kubectl logs daemonset/datadog --prefix=true --previous=false --all-containers --tial=-1 > k8s_debug/k8s_datadog_logs.txt || true
-          kubectl logs deployment/datadog-service --prefix=true --previous=false --all-containers --tail=-1 > k8s_debug/k8s_datadog_service_logs.txt || true
+          kubectl logs -n keptn deployment/datadog-cluster-agent --prefix=true --previous=false --all-containers --tial=-1 > k8s_debug/k8s_datadog-cluster-agent_logs.txt || true
+          kubectl logs -n keptn deployment/datadog_kube_state_metrics --prefix=true --previous=false --all-containers --tial=-1 > k8s_debug/k8s_datadog_kube_state_metrics_logs.txt || true
+          kubectl logs -n keptn daemonset/datadog --prefix=true --previous=false --all-containers --tial=-1 > k8s_debug/k8s_datadog_logs.txt || true
+          kubectl logs -n keptn deployment/datadog-service --prefix=true --previous=false --all-containers --tail=-1 > k8s_debug/k8s_datadog_service_logs.txt || true
 
       # Upload the k8s debug archive, so we can use it for investigating
       - name: Upload k8s debug archive
