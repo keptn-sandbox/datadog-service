@@ -145,7 +145,7 @@ jobs:
         env:
           KEPTN_VERSION: ${{ matrix.keptn-version }}
         run: |
-          helm install helm install helm-service keptn/helm-service --version ${KEPTN_VERSION} --wait
+          helm install helm-service keptn/helm-service --version ${KEPTN_VERSION} --wait
 
       - name: Test connection to keptn
         run: |
