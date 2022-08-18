@@ -213,7 +213,7 @@ jobs:
           kubectl logs -n keptn deployment/datadog_kube_state_metrics --prefix=true --previous=false --all-containers --tial=-1 > k8s_debug/k8s_datadog_kube_state_metrics_logs.txt || true
           kubectl logs -n keptn daemonset/datadog --prefix=true --previous=false --all-containers --tial=-1 > k8s_debug/k8s_datadog_logs.txt || true
           kubectl logs -n keptn deployment/datadog-service --prefix=true --previous=false --all-containers --tail=-1 > k8s_debug/k8s_datadog_service_logs.txt || true
-          kubectl get all -n e2e-project-staging -o json > k8s_e2e_project_debug/k8s_e2e_project_objects.json
+          kubectl get all -n e2e-project-staging -o json > k8s_debug/k8s_e2e_project_objects.json
           
 
       # Upload the k8s debug archive, so we can use it for investigating
