@@ -20,8 +20,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # keptn-version: ["0.14.2", "0.15.1", "0.16.0", "0.17.0"] # https://github.com/keptn/keptn/releases
-        keptn-version: ["0.15.1"] # https://github.com/keptn/keptn/releases
+        keptn-version: ["0.14.2", "0.15.1", "0.16.0", "0.17.0"] # https://github.com/keptn/keptn/releases
         datadog-version: ["2.37.0"]
     env:
       GO_VERSION: 1.17
@@ -177,8 +176,8 @@ jobs:
 
 
       # # Uncomment this for debugging (`cd && touch continue` to continue execution of the workflow) 
-      - name: Debugging with ssh
-        uses: lhotari/action-upterm@v1
+      # - name: Debugging with ssh
+      #   uses: lhotari/action-upterm@v1
 
       - name: Run Integration tests
         env:
