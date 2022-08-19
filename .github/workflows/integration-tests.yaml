@@ -20,7 +20,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        keptn-version: ["0.14.2", "0.15.1", "0.16.0", "0.17.0"] # https://github.com/keptn/keptn/releases
+        # keptn-version: ["0.14.2", "0.15.1", "0.16.0", "0.17.0"] # https://github.com/keptn/keptn/releases
+        keptn-version: ["0.15.1"] 
         datadog-version: ["2.37.0"]
     env:
       GO_VERSION: 1.17
@@ -205,12 +206,12 @@ jobs:
           kubectl cluster-info dump > k8s_debug/k8s_cluster_info_dump.txt
           kubectl get all -n keptn -o json > k8s_debug/k8s_keptn_objects.json
           kubectl logs -n keptn -l app.kubernetes.io/instance=keptn --prefix=true --previous=false --all-containers --tail=-1 > k8s_debug/k8s_keptn_logs.txt || true
-          kubectl logs deployment/keptn-gitea-provisioner-service --prefix=true --previous=false --all-containers --tial=-1 > k8s_debug/k8s_gitea_provisioner_logs.txt || true
+          kubectl logs deployment/keptn-gitea-provisioner-service --prefix=true --previous=false --all-containers --tail=-1 > k8s_debug/k8s_gitea_provisioner_logs.txt || true
           kubectl get statefulsets,configmaps,pods,networkpolicy,serviceaccounts,role,rolebindings,events,services -n ${GITEA_NAMESPACE} -o json > k8s_debug/k8s_objects_gitea.json
           kubectl logs statefulsets/gitea --prefix=true --previous=false --all-containers -n ${GITEA_NAMESPACE} --tail=-1 > k8s_debug/k8s_logs_gitea.txt || true
-          kubectl logs -n keptn deployment/datadog-cluster-agent --prefix=true --previous=false --all-containers --tial=-1 > k8s_debug/k8s_datadog-cluster-agent_logs.txt || true
-          kubectl logs -n keptn deployment/datadog_kube_state_metrics --prefix=true --previous=false --all-containers --tial=-1 > k8s_debug/k8s_datadog_kube_state_metrics_logs.txt || true
-          kubectl logs -n keptn daemonset/datadog --prefix=true --previous=false --all-containers --tial=-1 > k8s_debug/k8s_datadog_logs.txt || true
+          kubectl logs -n keptn deployment/datadog-cluster-agent --prefix=true --previous=false --all-containers --tail=-1 > k8s_debug/k8s_datadog-cluster-agent_logs.txt || true
+          kubectl logs -n keptn deployment/datadog_kube_state_metrics --prefix=true --previous=false --all-containers --tail=-1 > k8s_debug/k8s_datadog_kube_state_metrics_logs.txt || true
+          kubectl logs -n keptn daemonset/datadog --prefix=true --previous=false --all-containers --tail=-1 > k8s_debug/k8s_datadog_logs.txt || true
           kubectl logs -n keptn deployment/datadog-service --prefix=true --previous=false --all-containers --tail=-1 > k8s_debug/k8s_datadog_service_logs.txt || true
           kubectl get all -n e2e-project-staging -o json > k8s_debug/k8s_e2e_project_objects.json
           
