@@ -31,10 +31,11 @@ jobs:
       ENABLE_E2E_TEST: true
       JES_VERSION: "0.2.3"
       JES_NAMESPACE: keptn-jes
+      PROMETHEUS_NAMESPACE: monitoring
       GITEA_ADMIN_USERNAME: GiteaAdmin
       GITEA_NAMESPACE: gitea
-      KUBECONFIG: "${{ github.workspace }}/.kube/config"
-      TEST_REPORT_FILENAME: test-report-${{ github.run_id }}-keptn-${{ matrix.keptn-version }}-datadog-${{ matrix.datadog-version }}.json
+      KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+      TEST_REPORT_FILENAME: test-report-${{ github.run_id }}-keptn-${{ matrix.keptn-version }}-prometheus-${{ matrix.prometheus-version }}.json
     steps:
       # Checkout code for the integrations tests in test/e2e
       - name: Check out code.
@@ -49,33 +50,34 @@ jobs:
         shell: bash
         run: go install gotest.tools/gotestsum@latest
 
-      # Prepare minikube + Keptn environment
-      - name: Install and start minikube
-        run: |
-          # wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
-          # wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | sudo apt-key add -
-          # echo "deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian $(lsb_release -cs) contrib" | sudo tee -a /etc/apt/sources.list.d/virtualbox.list
-          # sudo apt-get update
-          # sudo apt-get install virtualbox-6.1 -y
-          
-          curl -LO https://storage.googleapis.com/minikube/releases/v1.24.0/minikube-linux-amd64
-          sudo install minikube-linux-amd64 /usr/local/bin/minikube
-          # /usr/local/bin/minikube start --driver=virtualbox
-          /usr/local/bin/minikube start --cpus=2 --memory=5GB
-          minikube tunnel &> /dev/null &
+      # Download artifacts from last CI run
+      - name: Download artifacts
+        uses: dawidd6/action-download-artifact@v2.21.1
+        id: download_artifacts_push
+        with:
+          # Download last successful artifact from a CI build
+          github_token: ${{secrets.GITHUB_TOKEN}}
+          workflow: CI.yml
+          branch: ${{ env.BRANCH }}
+          path: ./dist
 
-      # - name: Wait for minikube to become ready
-      #   timeout-minutes: 1
-      #   run: |
-      #     # uncomment the line below for debugging
-      #     # set -x
-      #     minikReady=$(kubectl get node $(hostname) -ogo-template --template="{{ range .status.conditions }} {{- if eq .type \"Ready\" }}{{ .status }} {{- end }} {{- end }}" || echo "")
-      #     while [ "$minikReady" != "True" ]; do
-      #     echo "Minikube is not ready yet, sleep awhile to let things settle"
-      #     sleep 5
-      #     minikReady=$(kubectl get node $(hostname) -ogo-template --template="{{ range .status.conditions }} {{- if eq .type \"Ready\" }}{{ .status }} {{- end }} {{- end }}" || echo "")
-      #     done;
-      #     echo "Minikube ready!!!"
+      # Prepare K3d + Keptn environment
+      - name: Install and start K3s
+        run: |
+          curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.21.12+k3s1" INSTALL_K3S_EXEC="--no-deploy traefik" K3S_KUBECONFIG_MODE="644" sh -
+
+      - name: Wait for K3s to become ready
+        timeout-minutes: 1
+        run: |
+          # uncomment the line below for debugging
+          # set -x
+          k3sReady=$(kubectl get node $(hostname) -ogo-template --template="{{ range .status.conditions }} {{- if eq .type \"Ready\" }}{{ .status }} {{- end }} {{- end }}" || echo "")
+          while [ "$k3sReady" != "True" ]; do
+          echo "K3s is not ready yet, sleep awhile to let things settle"
+          sleep 5
+          k3sReady=$(kubectl get node $(hostname) -ogo-template --template="{{ range .status.conditions }} {{- if eq .type \"Ready\" }}{{ .status }} {{- end }} {{- end }}" || echo "")
+          done;
+          echo "K3s ready!!!"
 
       - name: Generate Gitea credentials
         id: gitea_credentials
@@ -151,22 +153,22 @@ jobs:
         run: |
           curl -X GET "${{ steps.install_keptn.outputs.KEPTN_API_URL }}/v1/metadata" -H  "accept: application/json" -H  "x-token: ${{ steps.install_keptn.outputs.KEPTN_API_TOKEN }}"
 
-      - name: Install datadog
-        env:
-          DD_API_KEY: ${{ secrets.DD_API_KEY }}
-          DD_APP_KEY: ${{ secrets.DD_APP_KEY }}
-          DD_SITE: ${{ secrets.DD_SITE }}
-        run: |
-          helm repo add datadog https://helm.datadoghq.com
-          helm install datadog --set datadog.apiKey=${DD_API_KEY} datadog/datadog --set datadog.appKey=${DD_APP_KEY} --set datadog.site=${DD_SITE} --set clusterAgent.enabled=true --set clusterAgent.metricsProvider.enabled=true --set clusterAgent.createPodDisruptionBudget=true --set clusterAgent.replicas=1 -nkeptn
+      # - name: Install datadog
+      #   env:
+      #     DD_API_KEY: ${{ secrets.DD_API_KEY }}
+      #     DD_APP_KEY: ${{ secrets.DD_APP_KEY }}
+      #     DD_SITE: ${{ secrets.DD_SITE }}
+      #   run: |
+      #     helm repo add datadog https://helm.datadoghq.com
+      #     helm install datadog --set datadog.apiKey=${DD_API_KEY} datadog/datadog --set datadog.appKey=${DD_APP_KEY} --set datadog.site=${DD_SITE} --set clusterAgent.enabled=true --set clusterAgent.metricsProvider.enabled=true --set clusterAgent.createPodDisruptionBudget=true --set clusterAgent.replicas=1 -nkeptn
 
-      - name: Install datadog-service
-        env:
-          DD_API_KEY: ${{ secrets.DD_API_KEY }}
-          DD_APP_KEY: ${{ secrets.DD_APP_KEY }}
-          DD_SITE: ${{ secrets.DD_SITE }}
-        run: |
-          helm install datadog-service ./helm --set datadogservice.ddApikey=${DD_API_KEY} --set datadogservice.ddAppKey=${DD_APP_KEY} --set datadogservice.ddSite=${DD_SITE} -nkeptn
+      # - name: Install datadog-service
+      #   env:
+      #     DD_API_KEY: ${{ secrets.DD_API_KEY }}
+      #     DD_APP_KEY: ${{ secrets.DD_APP_KEY }}
+      #     DD_SITE: ${{ secrets.DD_SITE }}
+      #   run: |
+      #     helm install datadog-service ./helm --set datadogservice.ddApikey=${DD_API_KEY} --set datadogservice.ddAppKey=${DD_APP_KEY} --set datadogservice.ddSite=${DD_SITE} -nkeptn
 
       # If we failed any previous step we might have a problem and not reporting anything for the version
       - name: Create pipeline failure report
@@ -395,3 +397,4 @@ jobs:
       - name: Fail pipeline if tests failed
         if: always() && github.event_name != 'schedule' && steps.check_test_status.outputs.INTEGRATION_TESTS_FAILED == 'true'
         run: exit 1
+	
