@@ -397,4 +397,3 @@ jobs:
       - name: Fail pipeline if tests failed
         if: always() && github.event_name != 'schedule' && steps.check_test_status.outputs.INTEGRATION_TESTS_FAILED == 'true'
         run: exit 1
-	
