@@ -193,8 +193,8 @@ jobs:
 
 
       # # Uncomment this for debugging (`cd && touch continue` to continue execution of the workflow) 
-      - name: Debugging with ssh
-        uses: lhotari/action-upterm@v1
+      # - name: Debugging with ssh
+      #   uses: lhotari/action-upterm@v1
 
       - name: Run Integration tests
         env:
