@@ -35,7 +35,7 @@ jobs:
       PROMETHEUS_NAMESPACE: monitoring
       GITEA_ADMIN_USERNAME: GiteaAdmin
       GITEA_NAMESPACE: gitea
-      KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+      KUBECONFIG: "${{ github.workspace }}/.kube/config"
       TEST_REPORT_FILENAME: test-report-${{ github.run_id }}-keptn-${{ matrix.keptn-version }}-prometheus-${{ matrix.prometheus-version }}.json
     steps:
       # Checkout code for the integrations tests in test/e2e
@@ -51,34 +51,18 @@ jobs:
         shell: bash
         run: go install gotest.tools/gotestsum@latest
 
-      # # Download artifacts from last CI run
-      # - name: Download artifacts
-      #   uses: dawidd6/action-download-artifact@v2.21.1
-      #   id: download_artifacts_push
-      #   with:
-      #     # Download last successful artifact from a CI build
-      #     github_token: ${{secrets.GITHUB_TOKEN}}
-      #     workflow: CI.yml
-      #     branch: ${{ env.BRANCH }}
-      #     path: ./dist
-
-      # Prepare K3d + Keptn environment
-      - name: Install and start K3s
+      # Prepare minikube + Keptn environment
+      - name: Install and start minikube
         run: |
-          curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.21.12+k3s1" INSTALL_K3S_EXEC="--no-deploy traefik" K3S_KUBECONFIG_MODE="644" sh -
-
-      - name: Wait for K3s to become ready
-        timeout-minutes: 1
-        run: |
-          # uncomment the line below for debugging
-          # set -x
-          k3sReady=$(kubectl get node $(hostname) -ogo-template --template="{{ range .status.conditions }} {{- if eq .type \"Ready\" }}{{ .status }} {{- end }} {{- end }}" || echo "")
-          while [ "$k3sReady" != "True" ]; do
-          echo "K3s is not ready yet, sleep awhile to let things settle"
-          sleep 5
-          k3sReady=$(kubectl get node $(hostname) -ogo-template --template="{{ range .status.conditions }} {{- if eq .type \"Ready\" }}{{ .status }} {{- end }} {{- end }}" || echo "")
-          done;
-          echo "K3s ready!!!"
+          # wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
+          # wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | sudo apt-key add -
+          # echo "deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian $(lsb_release -cs) contrib" | sudo tee -a /etc/apt/sources.list.d/virtualbox.list
+          
+          curl -LO https://storage.googleapis.com/minikube/releases/v1.24.0/minikube-linux-amd64
+          sudo install minikube-linux-amd64 /usr/local/bin/minikube
+          /usr/local/bin/minikube start --cpus=2 --memory=5GB
+          minikube tunnel &> /dev/null &
+          echo "minikube ready!"
 
       - name: Generate Gitea credentials
         id: gitea_credentials
@@ -144,32 +128,26 @@ jobs:
 
           KUBECONFIG: ${{ env.KUBECONFIG }}
 
-      - name: Install Keptn helm service
-        env:
-          KEPTN_VERSION: ${{ matrix.keptn-version }}
-        run: |
-          helm install helm-service keptn/helm-service --version ${KEPTN_VERSION} -nkeptn --wait
-
       - name: Test connection to keptn
         run: |
           curl -X GET "${{ steps.install_keptn.outputs.KEPTN_API_URL }}/v1/metadata" -H  "accept: application/json" -H  "x-token: ${{ steps.install_keptn.outputs.KEPTN_API_TOKEN }}"
 
-      # - name: Install datadog
-      #   env:
-      #     DD_API_KEY: ${{ secrets.DD_API_KEY }}
-      #     DD_APP_KEY: ${{ secrets.DD_APP_KEY }}
-      #     DD_SITE: ${{ secrets.DD_SITE }}
-      #   run: |
-      #     helm repo add datadog https://helm.datadoghq.com
-      #     helm install datadog --set datadog.apiKey=${DD_API_KEY} datadog/datadog --set datadog.appKey=${DD_APP_KEY} --set datadog.site=${DD_SITE} --set clusterAgent.enabled=true --set clusterAgent.metricsProvider.enabled=true --set clusterAgent.createPodDisruptionBudget=true --set clusterAgent.replicas=1 -nkeptn
+      - name: Install datadog
+        env:
+          DD_API_KEY: ${{ secrets.DD_API_KEY }}
+          DD_APP_KEY: ${{ secrets.DD_APP_KEY }}
+          DD_SITE: ${{ secrets.DD_SITE }}
+        run: |
+          helm repo add datadog https://helm.datadoghq.com
+          helm install datadog --set datadog.apiKey=${DD_API_KEY} datadog/datadog --set datadog.appKey=${DD_APP_KEY} --set datadog.site=${DD_SITE} --set clusterAgent.enabled=true --set clusterAgent.metricsProvider.enabled=true --set clusterAgent.createPodDisruptionBudget=true --set clusterAgent.replicas=1 -nkeptn
 
-      # - name: Install datadog-service
-      #   env:
-      #     DD_API_KEY: ${{ secrets.DD_API_KEY }}
-      #     DD_APP_KEY: ${{ secrets.DD_APP_KEY }}
-      #     DD_SITE: ${{ secrets.DD_SITE }}
-      #   run: |
-      #     helm install datadog-service ./helm --set datadogservice.ddApikey=${DD_API_KEY} --set datadogservice.ddAppKey=${DD_APP_KEY} --set datadogservice.ddSite=${DD_SITE} -nkeptn
+      - name: Install datadog-service
+        env:
+          DD_API_KEY: ${{ secrets.DD_API_KEY }}
+          DD_APP_KEY: ${{ secrets.DD_APP_KEY }}
+          DD_SITE: ${{ secrets.DD_SITE }}
+        run: |
+          helm install datadog-service ./helm --set datadogservice.ddApikey=${DD_API_KEY} --set datadogservice.ddAppKey=${DD_APP_KEY} --set datadogservice.ddSite=${DD_SITE} -nkeptn
 
       # Install job executor from downloaded helm chart
       - name: Install Job-executor-service
@@ -205,13 +183,6 @@ jobs:
             --version ${PROMETHEUS_VERSION}\
             --wait
 
-      # - name: Install prometheus-service
-      #   run: |
-      #     ls -lah ./dist/helm-charts/
-      #     helm upgrade --install \
-      #       prometheus-service ./dist/helm-charts/prometheus-service-*.tgz \
-      #       -n keptn \
-      #       --wait
 
       # If we failed any previous step we might have a problem and not reporting anything for the version
       - name: Create pipeline failure report
@@ -243,22 +214,24 @@ jobs:
           name: test-report
           path: test-report-*.json
 
-      # - name: Dump k8s debug info
-      #   if: always()
-      #   run: |
-      #     mkdir k8s_debug
-      #     kubectl describe nodes > k8s_debug/k8s_describe_nodes.txt
-      #     kubectl cluster-info dump > k8s_debug/k8s_cluster_info_dump.txt
-      #     kubectl get all -n keptn -o json > k8s_debug/k8s_keptn_objects.json
-      #     kubectl logs -n keptn -l app.kubernetes.io/instance=keptn --prefix=true --previous=false --all-containers --tail=-1 > k8s_debug/k8s_keptn_logs.txt || true
-      #     kubectl logs deployment/keptn-gitea-provisioner-service --prefix=true --previous=false --all-containers --tail=-1 > k8s_debug/k8s_gitea_provisioner_logs.txt || true
-      #     kubectl get statefulsets,configmaps,pods,networkpolicy,serviceaccounts,role,rolebindings,events,services -n ${GITEA_NAMESPACE} -o json > k8s_debug/k8s_objects_gitea.json
-      #     kubectl logs statefulsets/gitea --prefix=true --previous=false --all-containers -n ${GITEA_NAMESPACE} --tail=-1 > k8s_debug/k8s_logs_gitea.txt || true
-      #     kubectl logs -n keptn deployment/datadog-cluster-agent --prefix=true --previous=false --all-containers --tail=-1 > k8s_debug/k8s_datadog-cluster-agent_logs.txt || true
-      #     kubectl logs -n keptn deployment/datadog_kube_state_metrics --prefix=true --previous=false --all-containers --tail=-1 > k8s_debug/k8s_datadog_kube_state_metrics_logs.txt || true
-      #     kubectl logs -n keptn daemonset/datadog --prefix=true --previous=false --all-containers --tail=-1 > k8s_debug/k8s_datadog_logs.txt || true
-      #     kubectl logs -n keptn deployment/datadog-service --prefix=true --previous=false --all-containers --tail=-1 > k8s_debug/k8s_datadog_service_logs.txt || true
-      #     kubectl get all -n e2e-project-staging -o json > k8s_debug/k8s_e2e_project_objects.json
+      - name: Dump k8s debug info
+        if: always()
+        run: |
+          mkdir k8s_debug
+          kubectl describe nodes > k8s_debug/k8s_describe_nodes.txt
+          kubectl cluster-info dump > k8s_debug/k8s_cluster_info_dump.txt
+          kubectl get configmaps,deployments,pods,networkpolicy,serviceaccounts,role,rolebindings,events -n ${JES_NAMESPACE} -o json > k8s_debug/k8s_jes_objects.json
+          kubectl get all -n keptn -o json > k8s_debug/k8s_keptn_objects.json
+          kubectl logs -n keptn -l app.kubernetes.io/instance=keptn --prefix=true --previous=false --all-containers --tail=-1 > k8s_debug/k8s_keptn_logs.txt || true
+          kubectl logs deployment/keptn-gitea-provisioner-service --prefix=true --previous=false --all-containers --tail=-1 > k8s_debug/k8s_gitea_provisioner_logs.txt || true
+          kubectl logs -n ${JES_NAMESPACE} deployment/job-executor-service --prefix=true --previous=false --all-containers --tail=-1 > k8s_debug/k8s_jes_logs.txt || true
+          kubectl get statefulsets,configmaps,pods,networkpolicy,serviceaccounts,role,rolebindings,events,services -n ${GITEA_NAMESPACE} -o json > k8s_debug/k8s_objects_gitea.json
+          kubectl logs statefulsets/gitea --prefix=true --previous=false --all-containers -n ${GITEA_NAMESPACE} --tail=-1 > k8s_debug/k8s_logs_gitea.txt || true
+          kubectl logs -n keptn deployment/datadog-cluster-agent --prefix=true --previous=false --all-containers --tail=-1 > k8s_debug/k8s_datadog-cluster-agent_logs.txt || true
+          kubectl logs -n keptn deployment/datadog_kube_state_metrics --prefix=true --previous=false --all-containers --tail=-1 > k8s_debug/k8s_datadog_kube_state_metrics_logs.txt || true
+          kubectl logs -n keptn daemonset/datadog --prefix=true --previous=false --all-containers --tail=-1 > k8s_debug/k8s_datadog_logs.txt || true
+          kubectl logs -n keptn deployment/datadog-service --prefix=true --previous=false --all-containers --tail=-1 > k8s_debug/k8s_datadog_service_logs.txt || true
+          kubectl get all -n e2e-project-staging -o json > k8s_debug/k8s_e2e_project_objects.json
           
 
       # Upload the k8s debug archive, so we can use it for investigating

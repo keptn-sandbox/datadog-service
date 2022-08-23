@@ -28,7 +28,9 @@ func TestPodtatoheadEvaluation(t *testing.T) {
 		FilePath     string
 		ResourceName string
 	}{
-		{FilePath: "../data/podtatoserver-0.1.0.tgz", ResourceName: fmt.Sprintf("helm/%s.tgz", testEnv.EventData.Service)},
+		{FilePath: "../data/podtatoserver-0.1.0.tgz", ResourceName: fmt.Sprintf("charts/%s.tgz", testEnv.EventData.Service)},
+		// {FilePath: "../data/locust.basic.py", ResourceName: "locust/basic.py"},
+		// {FilePath: "../data/locust.conf", ResourceName: "locust/locust.conf"},
 		{FilePath: "../data/podtatohead.sli.yaml", ResourceName: "datadog/sli.yaml"},
 		{FilePath: "../data/podtatohead.slo.yaml", ResourceName: "slo.yaml"},
 	}

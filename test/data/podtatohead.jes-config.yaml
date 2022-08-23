@@ -26,19 +26,5 @@ actions:
                 "--wait"
         ]
 
-  - name: "Run tests using locust"
-    events:
-      - name: "sh.keptn.event.test.triggered"
-    tasks:
-      - name: "Run locust"
-        maxPollDuration: 360
-        files:
-          - locust/basic.py
-          - locust/locust.conf
-        image: "locustio/locust"
-        cmd: [ "locust" ]
-        args: [ "--config", "/keptn/locust/locust.conf",
-                "-f", "/keptn/locust/basic.py",
-                "--host", "http://podtatoserver.$(KEPTN_PROJECT)-$(KEPTN_STAGE):80",
-                "--only-summary"
-        ]
+# TODO: Create an issue to add tests sequence
+
