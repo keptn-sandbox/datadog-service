@@ -165,7 +165,7 @@ You can find the details in [.github/workflows/tests.yml](.github/workflows/test
 ## Running tests on your local machine
 port-forward Keptn api so that our tests can create/delete Keptn resources
 
-``` bash kubectl port-forward svc/api-gateway-nginx 5000:80 -nkeptn``` # in a separate terminal window
+```kubectl port-forward svc/api-gateway-nginx 5000:80 -nkeptn``` # in a separate terminal window
 
 from datadog-service repo
 
