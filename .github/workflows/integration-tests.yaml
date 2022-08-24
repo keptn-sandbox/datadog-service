@@ -20,8 +20,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # keptn-version: ["0.14.2", "0.15.1", "0.16.0", "0.17.0"] # https://github.com/keptn/keptn/releases
-        keptn-version: ["0.15.1"] 
+        keptn-version: ["0.15.1", "0.16.0", "0.17.0", "0.18.1"] # https://github.com/keptn/keptn/releases
         datadog-version: ["2.37.0"]
         prometheus-version: ["15.10.1"]
     env:
