@@ -162,6 +162,23 @@ This repo has automated unit tests for pull requests.
 
 You can find the details in [.github/workflows/tests.yml](.github/workflows/tests.yml).
 
+## Running tests on your local machine
+port-forward Keptn api so that our tests can create/delete Keptn resources
+
+``` bash kubectl port-forward svc/api-gateway-nginx 5000:80 -nkeptn``` # in a separate terminal window
+
+from datadog-service repo
+
+```export ENABLE_E2E_TEST=true```
+
+```export KEPTN_ENDPOINT=http://localhost:5000/api```
+
+```export KEPTN_API_TOKEN=$(kubectl get secret keptn-api-token -n keptn -ojsonpath='{.data.keptn-api-token}' | base64 -d)```
+
+
+# run tests
+gotestsum --format standard-verbose -- -timeout=120m  ./test/e2e/...
+
 ## How to release a new version of this service
 
 It is assumed that the current development takes place in the master branch (either via Pull Requests or directly).
