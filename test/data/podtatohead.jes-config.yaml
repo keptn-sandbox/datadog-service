@@ -23,7 +23,7 @@ actions:
                 "--set", "keptn.stage=$(KEPTN_STAGE)",
                 "--set", "keptn.service=$(KEPTN_SERVICE)",
                 "--set", "keptn.deployment=direct",
-                "--set", "prefix=$(KEPTN_SERVICE)",
+                "--set", "name=$(KEPTN_SERVICE)",
                 "--wait"
         ]
 
