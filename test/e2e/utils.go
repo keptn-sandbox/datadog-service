@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -69,6 +70,17 @@ func readKeptnContextExtendedCE(path string) (*models.KeptnContextExtendedCE, er
 
 	if err != nil {
 		return nil, fmt.Errorf("unable to parse event: %w", err)
+	}
+
+	// we run github actions integration tests in parallel (based on Keptn version and run)
+	// having a service name for each run (using prefix) ensures that
+	// SLI results from one run don't mess up with another run of the integration tests
+	// github action job
+	prefix := strings.TrimSpace(os.Getenv("PREFIX"))
+	if prefix != "" {
+		d := keptnContextExtendedCE.Data.(map[string]interface{})
+		d["service"] = d["service"].(string) + prefix
+		keptnContextExtendedCE.Data = d
 	}
 
 	return &keptnContextExtendedCE, nil

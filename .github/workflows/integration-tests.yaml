@@ -1,13 +1,12 @@
+# Based on integration tests in prometheus-service
+# https://github.com/keptn-contrib/prometheus-service/blob/7c21f48f66f8ea26dd9d99e6898b57c55c0e5d88/.github/workflows/integration-tests.yaml
 name: Integration Tests
 on:
   # schedule:
-  #   # * is a special character in YAML, so you have to quote this string
-  #   - cron: "0 3 * * 1-5" # run integration tests at 3 AM, monday to friday (1-5)
+  # * is a special character in YAML, so you have to quote this string
+  - cron: "0 3 * * 1-5" # run integration tests at 3 AM, monday to friday (1-5)
 
   workflow_dispatch: # run integration tests only when triggered manually
-  push: 
-    branches:
-    - feat/47/add-tests
 
 defaults:
   run:
@@ -22,7 +21,6 @@ jobs:
       matrix:
         keptn-version: ["0.15.1", "0.16.0", "0.17.0", "0.18.1"] # https://github.com/keptn/keptn/releases
         datadog-version: ["2.37.0"]
-        prometheus-version: ["15.10.1"]
     env:
       GO_VERSION: 1.17
       GOPROXY: "https://proxy.golang.org"
@@ -31,11 +29,10 @@ jobs:
       ENABLE_E2E_TEST: true
       JES_VERSION: "0.2.3"
       JES_NAMESPACE: keptn-jes
-      PROMETHEUS_NAMESPACE: monitoring
       GITEA_ADMIN_USERNAME: GiteaAdmin
       GITEA_NAMESPACE: gitea
       KUBECONFIG: "${{ github.workspace }}/.kube/config"
-      TEST_REPORT_FILENAME: test-report-${{ github.run_id }}-keptn-${{ matrix.keptn-version }}-prometheus-${{ matrix.prometheus-version }}.json
+      TEST_REPORT_FILENAME: test-report-${{ github.run_id }}-keptn-${{ matrix.keptn-version }}-datadog-${{ matrix.datadog-version }}.json
     steps:
       # Checkout code for the integrations tests in test/e2e
       - name: Check out code.
@@ -172,16 +169,6 @@ jobs:
             -f test/data/helm-clusterRole.yaml \
             -f test/data/helm-clusterRoleBinding.yaml
 
-      - name: Install prometheus
-        env:
-          PROMETHEUS_VERSION: ${{ matrix.prometheus-version }}
-        run: |
-          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-          helm install prometheus prometheus-community/prometheus \
-            --namespace ${PROMETHEUS_NAMESPACE} --create-namespace \
-            --version ${PROMETHEUS_VERSION}\
-            --wait
-
 
       # If we failed any previous step we might have a problem and not reporting anything for the version
       - name: Create pipeline failure report
@@ -199,6 +186,7 @@ jobs:
         env:
           KEPTN_ENDPOINT: ${{ steps.install_keptn.outputs.KEPTN_API_URL }}
           KEPTN_API_TOKEN: ${{ steps.install_keptn.outputs.KEPTN_API_TOKEN }}
+          PREFIX: ${{ matrix.keptn-version }}-run${{ GITHUB_RUN_NUMBER }}-id${{ GITHUB_RUN_ID }}-attempt${{ GITHUB_RUN_ID }}
         run: |
           # create a new kube config (it is not available here sometimes)
           # TODO: investigate why this is the case
