@@ -189,7 +189,7 @@ jobs:
         env:
           KEPTN_ENDPOINT: ${{ steps.install_keptn.outputs.KEPTN_API_URL }}
           KEPTN_API_TOKEN: ${{ steps.install_keptn.outputs.KEPTN_API_TOKEN }}
-          PREFIX: ${{ matrix.keptn-version }}-run${{ GITHUB_RUN_NUMBER }}-id${{ GITHUB_RUN_ID }}-attempt${{ GITHUB_RUN_ID }}
+          PREFIX: ${{ matrix.keptn-version }}-run${{ env.GITHUB_RUN_NUMBER }}-id${{ env.GITHUB_RUN_ID }}-attempt${{ env.GITHUB_RUN_ID }}
         run: |
           # create a new kube config (it is not available here sometimes)
           # TODO: investigate why this is the case
