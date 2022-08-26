@@ -126,6 +126,11 @@ jobs:
                 type: LoadBalancer
               features:
                 automaticProvisioningURL: http://keptn-gitea-provisioner-service.default
+            # For Keptn 0.18 (to make room for more CPU)
+            statisticsService:
+              enabled: false
+            webhookService:
+              enabled: false
 
           KUBECONFIG: ${{ env.KUBECONFIG }}
 
@@ -184,9 +189,9 @@ jobs:
           echo '{"Test": "TestGitHub Pipeline", "Action": "fail"}' >> $TEST_REPORT_FILENAME
 
 
-      # Uncomment this for debugging (`cd && touch continue` to continue execution of the workflow) 
-      - name: Debugging with ssh
-        uses: lhotari/action-upterm@v1
+      # # Uncomment this for debugging (`cd && touch continue` to continue execution of the workflow) 
+      # - name: Debugging with ssh
+      #   uses: lhotari/action-upterm@v1
 
       - name: Run Integration tests
         env:
