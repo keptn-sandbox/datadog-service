@@ -1,7 +1,6 @@
 package e2e
 
 import (
-	"fmt"
 	"io/ioutil"
 	"testing"
 	"time"
@@ -28,7 +27,7 @@ func TestPodtatoheadEvaluation(t *testing.T) {
 		FilePath     string
 		ResourceName string
 	}{
-		{FilePath: "../data/podtatoserver-0.1.0.tgz", ResourceName: fmt.Sprintf("charts/%s.tgz", testEnv.EventData.Service)},
+		{FilePath: "../data/podtatoserver-0.1.0.tgz", ResourceName: "charts/podtatoserver.tgz"},
 		// {FilePath: "../data/locust.basic.py", ResourceName: "locust/basic.py"},
 		// {FilePath: "../data/locust.conf", ResourceName: "locust/locust.conf"},
 		{FilePath: "../data/podtatohead.sli.yaml", ResourceName: "datadog/sli.yaml"},

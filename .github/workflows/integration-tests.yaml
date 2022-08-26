@@ -23,7 +23,7 @@ jobs:
       fail-fast: false
       matrix:
         keptn-version: ["0.15.1", "0.16.0", "0.17.0", "0.18.1"] # https://github.com/keptn/keptn/releases
-        datadog-version: ["2.37.0"]
+        datadog-version: ["2.37.2"] # chart version
     env:
       GO_VERSION: 1.17
       GOPROXY: "https://proxy.golang.org"
@@ -36,6 +36,7 @@ jobs:
       GITEA_NAMESPACE: gitea
       KUBECONFIG: "${{ github.workspace }}/.kube/config"
       TEST_REPORT_FILENAME: test-report-${{ github.run_id }}-keptn-${{ matrix.keptn-version }}-datadog-${{ matrix.datadog-version }}.json
+
     steps:
       # Checkout code for the integrations tests in test/e2e
       - name: Check out code.
@@ -136,9 +137,10 @@ jobs:
           DD_API_KEY: ${{ secrets.DD_API_KEY }}
           DD_APP_KEY: ${{ secrets.DD_APP_KEY }}
           DD_SITE: ${{ secrets.DD_SITE }}
+          DATADOG_VERSION: ${{ matrix.datadog-version }}
         run: |
           helm repo add datadog https://helm.datadoghq.com
-          helm install datadog --set datadog.apiKey=${DD_API_KEY} datadog/datadog --set datadog.appKey=${DD_APP_KEY} --set datadog.site=${DD_SITE} --set clusterAgent.enabled=true --set clusterAgent.metricsProvider.enabled=true --set clusterAgent.createPodDisruptionBudget=true --set clusterAgent.replicas=1 -nkeptn
+          helm install datadog --set datadog.apiKey=${DD_API_KEY} datadog/datadog --set datadog.appKey=${DD_APP_KEY} --set datadog.site=${DD_SITE} --set clusterAgent.enabled=true --set clusterAgent.metricsProvider.enabled=true --set clusterAgent.createPodDisruptionBudget=true --set clusterAgent.replicas=1 -nkeptn --version=${DATADOG_VERSION}
 
       - name: Install datadog-service
         env:
@@ -189,7 +191,7 @@ jobs:
         env:
           KEPTN_ENDPOINT: ${{ steps.install_keptn.outputs.KEPTN_API_URL }}
           KEPTN_API_TOKEN: ${{ steps.install_keptn.outputs.KEPTN_API_TOKEN }}
-          PREFIX: ${{ matrix.keptn-version }}-r${{ env.GITHUB_RUN_NUMBER }}-${{ env.GITHUB_RUN_ID }}-t${{ env.GITHUB_RUN_ID }}
+          PREFIX: ${{ matrix.keptn-version }}-r${{ GITHUB_RUN_NUMBER }}-${{ GITHUB_RUN_ID }}-t${{ GITHUB_RUN_ID }}
         run: |
           # create a new kube config (it is not available here sometimes)
           # TODO: investigate why this is the case
