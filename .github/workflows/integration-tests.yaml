@@ -2,13 +2,10 @@
 # https://github.com/keptn-contrib/prometheus-service/blob/7c21f48f66f8ea26dd9d99e6898b57c55c0e5d88/.github/workflows/integration-tests.yaml
 name: Integration Tests
 on:
-  # schedule:
-  # * is a special character in YAML, so you have to quote this string
-  # - cron: "0 3 * * 1-5" # run integration tests at 3 AM, monday to friday (1-5)
-  push: 
-    branches:
-    - feat/47/add-tests
-
+  schedule:
+    # * is a special character in YAML, so you have to quote this string
+    - cron: "0 3 * * 1-5" # run integration tests at 3 AM, monday to friday (1-5)
+  
   workflow_dispatch: # run integration tests only when triggered manually
 
 defaults:
