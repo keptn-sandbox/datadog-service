@@ -203,7 +203,7 @@ jobs:
       # Upload the report files, so we can use them in later jobs
       - name: Upload test report as an artifact
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: test-report
           path: test-report-*.json
@@ -231,7 +231,7 @@ jobs:
       # Upload the k8s debug archive, so we can use it for investigating
       - name: Upload k8s debug archive
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: k8s-debug-archive-keptn-${{ matrix.keptn-version }}-datadog-${{ matrix.datadog-version }}
           path: k8s_debug/
