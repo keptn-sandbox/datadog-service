@@ -22,7 +22,7 @@
 # 4. keptn
 #    $ keptn version
 #    ... 
-#    Keptn CLI version: 0.15.1
+#    Keptn CLI version: 0.16.0
 #    ...
 # 5. minikube
 #    $ minikube version
@@ -162,9 +162,9 @@ helm repo add keptn https://charts.keptn.sh
 echo "Installing keptn"
 kubectl create ns keptn
 kubectl config set-context --current --namespace=keptn
-helm install keptn keptn/keptn -f examples/keptn-values.yaml --version 0.15.1
-helm install jmeter-service keptn/jmeter-service  --version 0.15.1
-helm install helm-service keptn/helm-service --version 0.15.1
+helm install keptn keptn/keptn -f examples/keptn-values.yaml --version 0.16.0
+helm install jmeter-service keptn/jmeter-service  --version 0.16.0
+helm install helm-service keptn/helm-service --version 0.16.0
 
 check_if_istioctl_cli_is_installed
 # Install Istio

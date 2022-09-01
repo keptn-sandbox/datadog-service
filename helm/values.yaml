@@ -17,7 +17,7 @@ datadogservice:
   image:
     repository: ghcr.io/keptn-sandbox/datadog-service # Container Image Name
     pullPolicy: IfNotPresent                   # Kubernetes Image Pull Policy
-    tag: 0.15.1                                # Container Tag
+    tag:  0.16.0                               # Container Tag
   service:
     enabled: true                              # Creates a Kubernetes Service for the datadog-service
 
@@ -28,7 +28,7 @@ distributor:
   image:
     repository: ghcr.io/keptn/distributor  # Container Image Name
     pullPolicy: IfNotPresent                 # Kubernetes Image Pull Policy
-    tag: "0.15.1"                                  # Container Tag
+    tag: "0.16.0"                                  # Container Tag
 
 remoteControlPlane:
   enabled: false                             # Enables remote execution plane mode
