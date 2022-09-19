@@ -43,8 +43,6 @@ spec:
           - secretRef:
               name: "{{ include "datadog-service.secret" . }}"
           env:
-          - name: CONFIGURATION_SERVICE
-            value: "http://localhost:8081/configuration-service"
           - name: env
             value: 'production'
           - name: SLEEP_BEFORE_API_IN_SECONDS
