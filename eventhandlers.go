@@ -11,9 +11,9 @@ import (
 
 	"github.com/DataDog/datadog-api-client-go/api/v1/datadog"
 	cloudevents "github.com/cloudevents/sdk-go/v2" // make sure to use v2 cloudevents here
+	"github.com/keptn-sandbox/datadog-service/pkg/utils"
 	keptnv2 "github.com/keptn/go-utils/pkg/lib/v0_2_0"
 	logger "github.com/sirupsen/logrus"
-	"github.com/vadasambar/datadog-service/pkg/utils"
 )
 
 const (
