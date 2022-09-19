@@ -1,3 +1,12 @@
+### Running the tests from your local machine
+```bash
+kubectl port-forward svc/api-gateway-nginx 5000:80 -nkeptn &
+export ENABLE_E2E_TEST=true
+export KEPTN_ENDPOINT=http://localhost:5000/api
+export KEPTN_API_TOKEN=$(kubectl get secret keptn-api-token -n keptn -ojsonpath='{.data.keptn-api-token}' | base64 -d)
+gotestsum --format standard-verbose -- -timeout=120m  ./test/e2e/...
+ps aux | grep 'kubectl port-forward svc/api-gateway-nginx 5000' | grep -v 'grep' | awk '{print $2}' | xargs -I{} kill -9 {}
+```
 ### Creating everything manually for debugging
 #### While running a local cluster
 password=$(date +%s | sha256sum | base64 | head -c 32)
@@ -31,11 +40,13 @@ keptn create service podtatoserver --project=e2e-project
 
 keptn add-resource --project="e2e-project" --stage="staging" --service="podtatoserver" --resource=data/podtatohead.sli.yaml --resourceUri=datadog/sli.yaml
 
-keptn add-resource --project=e2e-project --service=podtatoserver --all-stages --resource=data/podtatoserver-0.1.0.tgz --resourceUri=helm/podtatoserver.tgz
+keptn add-resource --project=e2e-project --service=podtatoserver --all-stages --resource=data/podtatoserver-0.1.0.tgz --resourceUri=charts/podtatoserver.tgz
 
 keptn add-resource --project="e2e-project" --stage="staging" --service="podtatoserver" --resource=data/podtatohead.slo.yaml --resourceUri=slo.yaml
 
 keptn configure monitoring datadog --project=e2e-project --service=podtatoserver 
+
+keptn add-resource --project=e2e-project --service=podtatoserver --stage="staging" --resource=data/podtatohead.jes-config.yaml --resourceUri job/config.yaml
 
 keptn send event -f events/podtatohead.deploy-v0.1.1.triggered.json
 
@@ -58,6 +69,6 @@ job-executor-service \
 --wait
 
 kubectl apply \
-    -f test/data/helm-serviceAccount.yaml \
-    -f test/data/helm-clusterRole.yaml \
-    -f test/data/helm-clusterRoleBinding.yaml
+    -f data/helm-serviceAccount.yaml \
+    -f data/helm-clusterRole.yaml \
+    -f data/helm-clusterRoleBinding.yaml
