@@ -9,11 +9,11 @@ import (
 	cloudevents "github.com/cloudevents/sdk-go/v2" // make sure to use v2 cloudevents here
 	"github.com/kelseyhightower/envconfig"
 
+	"github.com/keptn-sandbox/datadog-service/pkg/utils"
 	keptnv1 "github.com/keptn/go-utils/pkg/lib"
 	"github.com/keptn/go-utils/pkg/lib/keptn"
 	keptnv2 "github.com/keptn/go-utils/pkg/lib/v0_2_0"
 	logger "github.com/sirupsen/logrus"
-	"github.com/vadasambar/datadog-service/pkg/utils"
 )
 
 var keptnOptions = keptn.KeptnOpts{}

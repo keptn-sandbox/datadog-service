@@ -11,7 +11,7 @@ The following table lists the configurable parameters of the datadog-service cha
 
 | Parameter                | Description             | Default        |
 | ------------------------ | ----------------------- | -------------- |
-| `datadogservice.image.repository` | Container image name | `"ghcr.io/vadasambar/datadog-service"` |
+| `datadogservice.image.repository` | Container image name | `"ghcr.io/keptn-sandbox/datadog-service"` |
 | `datadogservice.image.pullPolicy` | Kubernetes image pull policy | `"IfNotPresent"` |
 | `datadogservice.image.tag` | Container tag | `""` |
 | `datadogservice.service.enabled` | Creates a kubernetes service for the datadog-service | `true` |
