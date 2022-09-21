@@ -151,7 +151,14 @@ INGRESS_HOST=localhost
 INGRESS_PORT=5000
 
 # Datadog does not work with the docker driver
-minikube start --cpus=2 --memory=5GB --driver=virtualbox
+# Note: you might need less cpu and memory than this
+# The numbers below are to be on the safe side.
+# If you are low on resources, 
+# Try:
+# minikube start --cpus='2' --memory='5g' --driver=virtualbox
+# ^ you might have to remove services you don't need or 
+# reduce cpu and memory requests for some services
+minikube start --cpus='4' --memory='10g' --driver=virtualbox
 
 check_if_keptn_cli_is_installed
 # TODO: This might work without any `--use-case` flag 
@@ -162,14 +169,13 @@ helm repo add keptn https://charts.keptn.sh
 echo "Installing keptn"
 kubectl create ns keptn
 kubectl config set-context --current --namespace=keptn
-helm upgrade --install keptn keptn/keptn -f examples/keptn-values.yaml --version 0.19.0
-minikube tunnel &> /dev/null &
-# helm install jmeter-service keptn/jmeter-service  --version 0.19.0
-# helm install helm-service keptn/helm-service --version 0.19.0
+helm install keptn keptn/keptn -f examples/keptn-values.yaml --version 0.19.0
+helm install jmeter-service keptn/jmeter-service  --version 0.19.0
+helm install helm-service keptn/helm-service --version 0.19.0
 
-# check_if_istioctl_cli_is_installed
+check_if_istioctl_cli_is_installed
 # Install Istio
-# istioctl install -y
+istioctl install -y
 
 check_if_kubectl_cli_is_installed
 # Kill an existing port-forward if it exists 
@@ -193,53 +199,53 @@ kubectl config set-context --current --namespace=keptn
 # Password: Get it by running 'kubectl get secret bridge-credentials -o=jsonpath='{.data.BASIC_AUTH_PASSWORD}' -nkeptn | base64 -d'
 kubectl delete secret bridge -nkeptn
 
-# # ---------------------------------------------- #
+# ---------------------------------------------- #
 
-# # This block of code
-# # 1. Creates a Keptn project
-# # 2. Creates a Keptn service (with helm charts as resources)
-# # 3. Adds loadtests
-# # 4. Adds endpoints
-# PROJECT="podtatohead"
-# SERVICE="helloservice"
-# IMAGE="docker.io/jetzlstorfer/helloserver"
-# VERSION=0.1.1
-# SLOW_VERSION=0.1.2
+# This block of code
+# 1. Creates a Keptn project
+# 2. Creates a Keptn service (with helm charts as resources)
+# 3. Adds loadtests
+# 4. Adds endpoints
+PROJECT="podtatohead"
+SERVICE="helloservice"
+IMAGE="docker.io/jetzlstorfer/helloserver"
+VERSION=0.1.1
+SLOW_VERSION=0.1.2
 
-# check_if_helm_cli_is_installed
+check_if_helm_cli_is_installed
 cd ./examples
 
-# print_headline "Create a Keptn project"
-# echo "keptn create project $PROJECT --shipyard=./quickstart/shipyard.yaml"
-# keptn create project $PROJECT --shipyard=./quickstart/shipyard.yaml
-# verify_test_step $? "keptn create project command failed."
+print_headline "Create a Keptn project"
+echo "keptn create project $PROJECT --shipyard=./quickstart/shipyard.yaml"
+keptn create project $PROJECT --shipyard=./quickstart/shipyard.yaml
+verify_test_step $? "keptn create project command failed."
 
-# print_headline "Create a Keptn service"
-# echo "keptn create service $SERVICE --project=${PROJECT} "
-# keptn create service $SERVICE --project="${PROJECT}" 
+print_headline "Create a Keptn service"
+echo "keptn create service $SERVICE --project=${PROJECT} "
+keptn create service $SERVICE --project="${PROJECT}" 
 
-# print_headline "Add Helm chart for $SERVICE"
-# keptn add-resource --project=$PROJECT --service=$SERVICE --all-stages --resource=./quickstart/helm/helloservice.tgz --resourceUri=helm/helloservice.tgz
+print_headline "Add Helm chart for $SERVICE"
+keptn add-resource --project=$PROJECT --service=$SERVICE --all-stages --resource=./quickstart/helm/helloservice.tgz --resourceUri=helm/helloservice.tgz
 
-# print_headline "Add endpoints file"
-# keptn add-resource --project=$PROJECT --service=$SERVICE --stage=hardening --resource=./quickstart/helm/hardening_endpoints.yaml --resourceUri=helm/endpoints.yaml
-# keptn add-resource --project=$PROJECT --service=$SERVICE --stage=production --resource=./quickstart/helm/production_endpoints.yaml --resourceUri=helm/endpoints.yaml
+print_headline "Add endpoints file"
+keptn add-resource --project=$PROJECT --service=$SERVICE --stage=hardening --resource=./quickstart/helm/hardening_endpoints.yaml --resourceUri=helm/endpoints.yaml
+keptn add-resource --project=$PROJECT --service=$SERVICE --stage=production --resource=./quickstart/helm/production_endpoints.yaml --resourceUri=helm/endpoints.yaml
 
-# # adding tests to the service
-# print_headline "Adding some load tests"
-# keptn add-resource --project=$PROJECT --service=$SERVICE --stage=hardening --resource=./quickstart/jmeter/jmeter.conf.yaml --resourceUri=jmeter/jmeter.conf.yaml
-# keptn add-resource --project=$PROJECT --service=$SERVICE --stage=hardening --resource=./quickstart/jmeter/load.jmx --resourceUri=jmeter/load.jmx
+# adding tests to the service
+print_headline "Adding some load tests"
+keptn add-resource --project=$PROJECT --service=$SERVICE --stage=hardening --resource=./quickstart/jmeter/jmeter.conf.yaml --resourceUri=jmeter/jmeter.conf.yaml
+keptn add-resource --project=$PROJECT --service=$SERVICE --stage=hardening --resource=./quickstart/jmeter/load.jmx --resourceUri=jmeter/load.jmx
 
-# # to tell lighthouse to use Datadog for podtatohead project
-# keptn configure monitoring datadog --project $PROJECT --service $SERVICE
+# to tell lighthouse to use Datadog for podtatohead project
+keptn configure monitoring datadog --project $PROJECT --service $SERVICE
 
 
-# # ---------------------------------------------- #
+# ---------------------------------------------- #
 
-# # This block of code
-# # 1. Installs Datadog
-# # 2. Sets it up with the API keys in a K8s Secret
-# # 3. Installs datadog integration for Keptn
+# This block of code
+# 1. Installs Datadog
+# 2. Sets it up with the API keys in a K8s Secret
+# 3. Installs datadog integration for Keptn
 
 helm repo add datadog https://helm.datadoghq.com
 
@@ -254,53 +260,52 @@ helm repo add datadog https://helm.datadoghq.com
 # # Install datadog using the Datadog helm chart
 # helm install datadog --set datadog.apiKey=${DD_API_KEY} datadog/datadog --set datadog.appKey=${DD_APP_KEY} --set datadog.site=${DD_SITE} --set clusterAgent.enabled=true --set clusterAgent.metricsProvider.enabled=true --set clusterAgent.createPodDisruptionBudget=true --set clusterAgent.replicas=2
 
-helm install datadog --set datadog.apiKey=${DD_API_KEY} datadog/datadog --set datadog.appKey=${DD_APP_KEY} --set datadog.site=${DD_SITE} --set clusterAgent.enabled=true --set clusterAgent.metricsProvider.enabled=true --set clusterAgent.createPodDisruptionBudget=true --set clusterAgent.replicas=1
+helm install datadog --set datadog.apiKey=${DD_API_KEY} datadog/datadog --set datadog.appKey=${DD_APP_KEY} --set datadog.site=${DD_SITE} --set clusterAgent.enabled=true --set clusterAgent.metricsProvider.enabled=true --set clusterAgent.createPodDisruptionBudget=true --set clusterAgent.replicas=2
 
 
 # Install datadog-service integration for Keptn
 # kubectl apply -f ~/sandbox/datadog-service/deploy/service.yaml
 helm install datadog-service ../helm --set datadogservice.ddApikey=${DD_API_KEY} --set datadogservice.ddAppKey=${DD_APP_KEY} --set datadogservice.ddSite=${DD_SITE}
 
-# # Add datadog sli and slo
-# keptn add-resource --project="podtatohead" --stage="hardening" --service="helloservice" --resource=./quickstart/sli.yaml --resourceUri=datadog/sli.yaml
-# keptn add-resource --project="podtatohead" --stage="hardening" --service="helloservice" --resource=./quickstart/slo.yaml --resourceUri=slo.yaml
+# Add datadog sli and slo
+keptn add-resource --project="podtatohead" --stage="hardening" --service="helloservice" --resource=./quickstart/sli.yaml --resourceUri=datadog/sli.yaml
+keptn add-resource --project="podtatohead" --stage="hardening" --service="helloservice" --resource=./quickstart/slo.yaml --resourceUri=slo.yaml
 
 
-# # ---------------------------------------------- #
+# ---------------------------------------------- #
 
-# # This block of code triggers delivery sequence for the service
+# This block of code triggers delivery sequence for the service
 
-# print_headline "Trigger the delivery sequence with Keptn"
-# echo "keptn trigger delivery --project=$PROJECT --service=$SERVICE --image=$IMAGE:$VERSION"
-# keptn trigger delivery --project=$PROJECT --service=$SERVICE --image=$IMAGE:$VERSION
-# verify_test_step $? "Trigger delivery for helloservice failed"
+print_headline "Trigger the delivery sequence with Keptn"
+echo "keptn trigger delivery --project=$PROJECT --service=$SERVICE --image=$IMAGE:$VERSION"
+keptn trigger delivery --project=$PROJECT --service=$SERVICE --image=$IMAGE:$VERSION
+verify_test_step $? "Trigger delivery for helloservice failed"
 
-# print_headline "Trigger a new delivery sequence with Keptn"
-# echo "keptn trigger delivery --project=$PROJECT --service=$SERVICE --image=$IMAGE:$SLOW_VERSION"
-# keptn trigger delivery --project=$PROJECT --service=$SERVICE --image=$IMAGE:$SLOW_VERSION
-# verify_test_step $? "Trigger delivery for helloservice failed"
-
-
-# echo "Following the multi stage delivery in Keptn Bridge here: http://$INGRESS_HOST:$INGRESS_PORT/bridge/project/$PROJECT/sequence"
+print_headline "Trigger a new delivery sequence with Keptn"
+echo "keptn trigger delivery --project=$PROJECT --service=$SERVICE --image=$IMAGE:$SLOW_VERSION"
+keptn trigger delivery --project=$PROJECT --service=$SERVICE --image=$IMAGE:$SLOW_VERSION
+verify_test_step $? "Trigger delivery for helloservice failed"
 
 
-# print_headline "Have a look at the Keptn Bridge and explore the demo project"
-# echo "You can run a new delivery sequence with the following command"
-# echo "keptn trigger delivery --project=$PROJECT --service=$SERVICE --image=$IMAGE:$VERSION"
+echo "Following the multi stage delivery in Keptn Bridge here: http://$INGRESS_HOST:$INGRESS_PORT/bridge/project/$PROJECT/sequence"
 
-# print_headline "Multi-stage delviery demo with SLO-based quality gates for Datadog Keptn integration has been successfully set up"
 
-# echo "You can run a new delivery sequence with the following command"
-# echo "keptn trigger delivery --project=$PROJECT --service=$SERVICE --image=$IMAGE:$VERSION"
-# echo "or by deploying a slow version that will not pass the quality gate"
-# echo "keptn trigger delivery --project=$PROJECT --service=$SERVICE --image=$IMAGE:$SLOW_VERSION"
+print_headline "Have a look at the Keptn Bridge and explore the demo project"
+echo "You can run a new delivery sequence with the following command"
+echo "keptn trigger delivery --project=$PROJECT --service=$SERVICE --image=$IMAGE:$VERSION"
 
-# # ---------------------------------------------- #
+print_headline "Multi-stage delviery demo with SLO-based quality gates for Datadog Keptn integration has been successfully set up"
 
-# # Cleanup
+echo "You can run a new delivery sequence with the following command"
+echo "keptn trigger delivery --project=$PROJECT --service=$SERVICE --image=$IMAGE:$VERSION"
+echo "or by deploying a slow version that will not pass the quality gate"
+echo "keptn trigger delivery --project=$PROJECT --service=$SERVICE --image=$IMAGE:$SLOW_VERSION"
 
-# # Kill the port-forward started in the background
-# # If you want to port-forward again, just run
-# # kubectl port-forward svc/api-gateway-nginx 5000:80 -nkeptn
+# ---------------------------------------------- #
+
+# Cleanup
+
+# Kill the port-forward started in the background
+# If you want to port-forward again, just run
+# kubectl port-forward svc/api-gateway-nginx 5000:80 -nkeptn
 ps aux | grep 'kubectl port-forward svc/api-gateway-nginx 5000' | grep -v 'grep' | awk '{print $2}' | xargs -I{} kill -9 {}
-ps aux | grep 'minikube tunnel' | grep -v 'grep' | awk '{print $2}' | xargs -I{} kill -9 {}
