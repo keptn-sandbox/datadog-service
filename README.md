@@ -2,7 +2,7 @@
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/keptn-sandbox/datadog-service)
 [![Go Report Card](https://goreportcard.com/badge/github.com/keptn-sandbox/datadog-service)](https://goreportcard.com/report/github.com/keptn-sandbox/datadog-service)
 
-This implements the `datadog-service` that integrates the [Datadog](https://en.wikipedia.org/wiki/Datadog) observability platform with Keptn. This enables you to use Datadog as the source for the Service Level Indicators ([SLIs](https://keptn.sh/docs/0.15.x/reference/files/sli/)) that are used for Keptn [Quality Gates](https://keptn.sh/docs/concepts/quality_gates/).
+This implements the `datadog-service` that integrates the [Datadog](https://en.wikipedia.org/wiki/Datadog) observability platform with Keptn. This enables you to use Datadog as the source for the Service Level Indicators ([SLIs](https://keptn.sh/docs/0.16.x/reference/files/sli/)) that are used for Keptn [Quality Gates](https://keptn.sh/docs/concepts/quality_gates/).
 If you want to learn more about Keptn visit us on [keptn.sh](https://keptn.sh)
 
 Check the issue on the main repo for more info: https://github.com/keptn/keptn/issues/2652
@@ -60,7 +60,7 @@ Example:
 ```bash
 keptn trigger delivery --project=podtatohead --service=helloservice --image=docker.io/jetzlstorfer/helloserver --tag=0.1.1
 ```
-Observe the results in the [Keptn Bridge](https://keptn.sh/docs/0.15.x/bridge/)
+Observe the results in the [Keptn Bridge](https://keptn.sh/docs/0.16.x/bridge/)
 ## Compatibility Matrix
 
 *Please fill in your versions accordingly*
