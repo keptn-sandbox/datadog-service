@@ -27,7 +27,7 @@ jobs:
       GO111MODULE: "on"
       BRANCH: ${{ github.head_ref || github.ref_name }}
       ENABLE_E2E_TEST: true
-      JES_VERSION: "0.2.3"
+      JES_VERSION: "0.3.0"
       JES_NAMESPACE: keptn-jes
       GITEA_ADMIN_USERNAME: GiteaAdmin
       GITEA_NAMESPACE: gitea

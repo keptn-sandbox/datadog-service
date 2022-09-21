@@ -56,7 +56,7 @@ KEPTN_API_PROTOCOL=http
 KEPTN_API_TOKEN=$(kubectl get secret keptn-api-token -n keptn -ojsonpath='{.data.keptn-api-token}' | base64 -d)
 export KEPTN_ENDPOINT=api-gateway-nginx.keptn
 TASK_SUBSCRIPTION="sh.keptn.event.deployment.triggered\\,sh.keptn.event.test.triggered"
-JES_VERSION="0.2.3"
+JES_VERSION="0.3.0"
 helm upgrade --install \
 --create-namespace -n ${JES_NAMESPACE} \
 job-executor-service \
