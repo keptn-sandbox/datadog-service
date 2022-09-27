@@ -1,3 +1,22 @@
+- [datadog-service](#datadog-service)
+  * [Quickstart](#quickstart)
+  * [If you already have a Keptn cluster running](#if-you-already-have-a-keptn-cluster-running)
+  * [Compatibility Matrix](#compatibility-matrix)
+  * [Installation](#installation)
+    + [Up- or Downgrading](#up--or-downgrading)
+    + [Uninstall](#uninstall)
+  * [Running tests on your local machine](#running-tests-on-your-local-machine)
+    + [Run tests](#run-tests)
+  * [Development](#development)
+    + [Where to start](#where-to-start)
+    + [Common tasks](#common-tasks)
+    + [Testing Cloud Events](#testing-cloud-events)
+  * [Automation](#automation)
+    + [GitHub Actions: Automated Pull Request Review](#github-actions-automated-pull-request-review)
+    + [GitHub Actions: Unit Tests](#github-actions-unit-tests)
+  * [How to release a new version of this service](#how-to-release-a-new-version-of-this-service)
+  * [Known problems](#known-problems)
+  * [License](#license)
 # datadog-service
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/keptn-sandbox/datadog-service)
 [![Go Report Card](https://goreportcard.com/badge/github.com/keptn-sandbox/datadog-service)](https://goreportcard.com/report/github.com/keptn-sandbox/datadog-service)
@@ -110,6 +129,32 @@ To delete a deployed *datadog-service* helm chart:
 
 ```bash
 helm uninstall datadog-service
+```
+## Running tests on your local machine
+port-forward Keptn API so that our tests can create/delete Keptn resources
+
+``` bash
+kubectl port-forward svc/api-gateway-nginx 5000:80 -nkeptn # in a separate terminal window
+``` 
+
+from datadog-service repo
+
+```bash 
+export ENABLE_E2E_TEST=true
+```
+
+```bash
+export KEPTN_ENDPOINT=http://localhost:5000/api
+```
+
+```bash 
+export KEPTN_API_TOKEN=$(kubectl get secret keptn-api-token -n keptn -ojsonpath='{.data.keptn-api-token}' | base64 -d)
+```
+
+
+# Run tests
+```bash
+gotestsum --format standard-verbose -- -timeout=120m  ./test/e2e/...
 ```
 
 ## Development
