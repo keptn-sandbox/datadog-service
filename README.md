@@ -1,3 +1,4 @@
+# Table Of Contetst
 - [datadog-service](#datadog-service)
   * [Quickstart](#quickstart)
   * [If you already have a Keptn cluster running](#if-you-already-have-a-keptn-cluster-running)
@@ -11,6 +12,7 @@
     + [Where to start](#where-to-start)
     + [Common tasks](#common-tasks)
     + [Testing Cloud Events](#testing-cloud-events)
+    + [Auto signoff commit message](#auto-signoff-commit-messages)
   * [Automation](#automation)
     + [GitHub Actions: Automated Pull Request Review](#github-actions-automated-pull-request-review)
     + [GitHub Actions: Unit Tests](#github-actions-unit-tests)
@@ -197,6 +199,44 @@ If you want to get more insights into processing those CloudEvents or even defin
 ### Testing Cloud Events
 
 We have dummy cloud-events in the form of [RFC 2616](https://ietf.org/rfc/rfc2616.txt) requests in the [test-events/](test-events/) directory. These can be easily executed using third party plugins such as the [Huachao Mao REST Client in VS Code](https://marketplace.visualstudio.com/items?itemName=humao.rest-client).
+
+### Auto signoff commit messages
+
+We have a DCO check which runs on every PR to check if the commit has been signed off.
+
+we can do 
+```bash
+git commit -ammend --signoff
+```
+
+or something like
+```bash
+git rebase HEAD~2 --signoff
+```
+
+to signoff commits, But it is inconvenient. we can automate this process.
+
+To automatically signoff commits  : 
+``` bash
+touch .git/hooks/prepare-commit-msg
+```
+
+``` bash
+vim .git/hooks/prepare-commit-msg
+```
+add this to `prepare-commit-msg` file:
+
+```bash
+SOB=$(git var GIT_AUTHOR_IDENT | sed -n 's/^\(.*>\).*$/Signed-off-by: \1/p')
+grep -qs "^$SOB" "$1" || echo "$SOB" >> "$1"
+```
+
+and finally give it permission to execute using:
+
+```bash
+chmod +x .git/hooks/prepare-commit-msg
+```
+
 
 ## Automation
 
