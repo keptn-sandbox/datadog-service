@@ -1,4 +1,4 @@
-# Table Of Contetst
+# Table Of Contents
 - [datadog-service](#datadog-service)
   * [Quickstart](#quickstart)
   * [If you already have a Keptn cluster running](#if-you-already-have-a-keptn-cluster-running)
@@ -204,7 +204,7 @@ We have dummy cloud-events in the form of [RFC 2616](https://ietf.org/rfc/rfc261
 
 We have a DCO check which runs on every PR to check if the commit has been signed off.
 
-we can do 
+you can do 
 ```bash
 git commit -ammend --signoff
 ```
@@ -214,7 +214,7 @@ or something like
 git rebase HEAD~2 --signoff
 ```
 
-to signoff commits, But it is inconvenient. we can automate this process.
+to signoff commits, but it is inconvenient. You can automate this process.
 
 To automatically signoff commits  : 
 ``` bash
