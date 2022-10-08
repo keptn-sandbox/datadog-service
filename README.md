@@ -40,6 +40,10 @@ Check [the official docs](https://docs.datadoghq.com/account_management/api-app-
 Note: Application keys get the same permissions as you. You might want to narrow down the permissions (datadog-service only reads metrics from the API. Check the official docs linked above for more information).
 
 ## If you already have a Keptn cluster running
+Note: Before installing datadog add this repo to your working directory
+```bash
+helm repo add datadog https://helm.datadoghq.com
+```
 1. Install datadog
 ```bash
 export DD_API_KEY="<your-datadog-api-key>" DD_APP_KEY="<your-datadog-app-key>" DD_SITE="datadoghq.com" 
