@@ -41,6 +41,12 @@ Note: Application keys get the same permissions as you. You might want to narrow
 
 ## If you already have a Keptn cluster running
 1. Install datadog
+
+Add datadog helm repo:
+```bash
+helm repo add datadog https://helm.datadoghq.com
+```
+Install datadog helm chart:
 ```bash
 export DD_API_KEY="<your-datadog-api-key>" DD_APP_KEY="<your-datadog-app-key>" DD_SITE="datadoghq.com" 
 helm install datadog --set datadog.apiKey=${DD_API_KEY} datadog/datadog --set datadog.appKey=${DD_APP_KEY} --set datadog.site=${DD_SITE} --set clusterAgent.enabled=true --set clusterAgent.metricsProvider.enabled=true --set clusterAgent.createPodDisruptionBudget=true --set clusterAgent.replicas=2
