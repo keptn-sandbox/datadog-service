@@ -105,7 +105,7 @@ jobs:
 
       - name: Install Keptn
         id: install_keptn
-        uses: keptn-sandbox/action-install-keptn@v2.0.0
+        uses: keptn-sandbox/action-install-keptn@v4.0.0
         timeout-minutes: 10
         with:
           KEPTN_VERSION: ${{ matrix.keptn-version }}
