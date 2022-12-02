@@ -397,7 +397,7 @@ jobs:
       # Create a GitHub issue if scheduled tests failed
       - name: Create issue if tests failed
         if: always() && github.event_name == 'schedule' && steps.check_test_status.outputs.INTEGRATION_TESTS_FAILED == 'true'
-        uses: JasonEtco/create-an-issue@v2.6
+        uses: JasonEtco/create-an-issue@v2.8
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
