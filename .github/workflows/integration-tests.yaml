@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        keptn-version: ["0.18.1", "0.19.0"] # https://github.com/keptn/keptn/releases
+        keptn-version: ["0.18.1", "0.19.0", "0.20.0-next.0"] # https://github.com/keptn/keptn/releases
         datadog-version: ["2.37.2"] # chart version
     env:
       GO_VERSION: 1.17
@@ -105,7 +105,10 @@ jobs:
 
       - name: Install Keptn
         id: install_keptn
-        uses: keptn-sandbox/action-install-keptn@v2.0.0
+        # to temporarily fix issue mentioned in this comment
+        # https://github.com/keptn-sandbox/datadog-service/issues/110#issuecomment-1338859830
+        # Until https://github.com/keptn-sandbox/action-install-keptn/pull/7 is merged
+        uses: vadasambar/action-install-keptn@v4.0.0-patch-vadasambar
         timeout-minutes: 10
         with:
           KEPTN_VERSION: ${{ matrix.keptn-version }}
