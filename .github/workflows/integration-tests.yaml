@@ -103,6 +103,9 @@ jobs:
             --set gitea.admin.password=${GITEA_ADMIN_PASSWORD} \
             --wait
 
+      - name: Debugging with ssh
+        uses: lhotari/action-upterm@v1
+
       - name: Install Keptn
         id: install_keptn
         # to temporarily fix issue mentioned in this comment
@@ -132,10 +135,6 @@ jobs:
               enabled: false
 
           KUBECONFIG: ${{ env.KUBECONFIG }}
-
-
-      - name: Debugging with ssh
-        uses: lhotari/action-upterm@v1
 
       - name: Test connection to keptn
         run: |
