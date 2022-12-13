@@ -103,8 +103,8 @@ jobs:
             --set gitea.admin.password=${GITEA_ADMIN_PASSWORD} \
             --wait
 
-      - name: Debugging with ssh
-        uses: lhotari/action-upterm@v1
+      # - name: Debugging with ssh
+      #   uses: lhotari/action-upterm@v1
 
       - name: Install Keptn
         id: install_keptn
@@ -129,6 +129,9 @@ jobs:
             statisticsService:
               enabled: false
             webhookService:
+              enabled: false
+            # For Keptn 1.0.0 (to make room for more resources and reduce helm installationj time)
+            approvalService:
               enabled: false
 
           KUBECONFIG: ${{ env.KUBECONFIG }}

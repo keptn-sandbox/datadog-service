@@ -29,3 +29,6 @@ statisticsService:
   enabled: false
 webhookService:
   enabled: false
+# For Keptn 1.0.0 (to make room for more resources and reduce helm installationj time)
+approvalService:
+  enabled: false
