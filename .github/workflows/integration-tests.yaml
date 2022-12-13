@@ -108,7 +108,10 @@ jobs:
 
       - name: Install Keptn
         id: install_keptn
-        uses: keptn-sandbox/action-install-keptn@v4.0.0
+        # This action is a patched version of github.com/keptn-sandbox/action-install-keptn
+        # which is being used here in the interest of time
+        # TODO: this change should go into github.com/keptn-sandbox/action-install-keptn
+        uses: vadasambar/action-install-keptn@v4.0.0-patch-vadasambar2
         timeout-minutes: 10
         with:
           KEPTN_VERSION: ${{ matrix.keptn-version }}
@@ -135,6 +138,7 @@ jobs:
               enabled: false
 
           KUBECONFIG: ${{ env.KUBECONFIG }}
+          HELM_TIMEOUT: "10m"
 
       - name: Test connection to keptn
         run: |
