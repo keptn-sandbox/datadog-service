@@ -225,7 +225,6 @@ It is assumed that the current development takes place in the master branch (eit
 To make use of the built-in automation using GH Actions for releasing a new version of this service, you should
 
 * branch away from master to a branch called `release-x.y.z` (where `x.y.z` is your version),
-* write release notes in the [releasenotes/](releasenotes/) folder,
 * check the output of GH Actions builds for the release branch, 
 * verify that your image was built and pushed to GHCR with the right tags,
 * update the image tags in [deploy/service.yaml], and
