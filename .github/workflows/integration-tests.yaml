@@ -111,7 +111,7 @@ jobs:
         # This action is a patched version of github.com/keptn-sandbox/action-install-keptn
         # which is being used here in the interest of time
         # TODO: this change should go into github.com/keptn-sandbox/action-install-keptn
-        uses: vadasambar/action-install-keptn@v4.0.0-patch-vadasambar2
+        uses: vadasambar/action-install-keptn@v4.0.0-patch-vadasambar3
         timeout-minutes: 10
         with:
           KEPTN_VERSION: ${{ matrix.keptn-version }}
