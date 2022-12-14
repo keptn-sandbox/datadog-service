@@ -100,7 +100,6 @@ Observe the results in the [Keptn Bridge](https://keptn.sh/docs/0.19.x/bridge/)
 |       0.17.0      | ghcr.io/keptn-sandbox/datadog-service:0.17.0 | 
 |       0.18.1      | ghcr.io/keptn-sandbox/datadog-service:0.18.1 | 
 |       0.19.0      | ghcr.io/keptn-sandbox/datadog-service:0.19.0 | 
-|       1.0.0      | ghcr.io/keptn-sandbox/datadog-service:1.0.0 | 
 
 datadog-service version will match Keptn version starting from 0.15.0 version of Keptn e.g., datadog-service 0.15.x is compatible with Keptn 0.15.x 
 
