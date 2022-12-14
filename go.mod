@@ -3,7 +3,7 @@ module github.com/keptn-sandbox/datadog-service
 go 1.17
 
 require (
-	github.com/DataDog/datadog-api-client-go v1.6.0
+	github.com/DataDog/datadog-api-client-go v1.16.0
 	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/cloudevents/sdk-go/v2 v2.10.0
 	github.com/kelseyhightower/envconfig v1.4.0
@@ -15,6 +15,7 @@ require (
 )
 
 require (
+	github.com/DataDog/zstd v1.5.0 // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/benbjohnson/clock v1.3.0 // indirect
