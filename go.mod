@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/DataDog/datadog-api-client-go v1.6.0
-	github.com/Masterminds/semver/v3 v3.1.1
+	github.com/Masterminds/semver/v3 v3.2.1
 	github.com/cloudevents/sdk-go/v2 v2.10.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/keptn/go-utils v0.18.0
